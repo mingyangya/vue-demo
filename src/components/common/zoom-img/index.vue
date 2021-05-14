@@ -112,13 +112,16 @@ export default {
     open () {
       this.handleEvent(true)
       this.show = true
-      this.init = true
     },
 
     close () {
       this.handleEvent(false)
       this.show = false
       this.resetData()
+    },
+
+    init (){
+      this.handleEvent(true)
     },
 
     resetData () {
@@ -148,6 +151,11 @@ export default {
 
         // 监听滚轮事件
         this.mousewheelEvent(add)
+
+        // 视图发生变化
+        window.onresize = () => {
+          // this.initPostion()
+        }
       })
     },
 
@@ -198,7 +206,6 @@ export default {
     },
 
     mouseup (e) {
-      if (this.isMobile()) return
       this.pauseEvent(e)
       console.log('up')
       if (this.isMove) {
@@ -212,18 +219,23 @@ export default {
     },
 
     touchstart (e) {
+      console.log('touchstart')
       this.pauseEvent(e)
+      
+      const touches = e.touches
 
       this.isTouch = true
-      this.startPoint = {x: e.x, y: e.y}
+      this.startPoint = {x: touches[0].clientX, y: touches[0].clientY}
     },
 
     touchmove (e) {
       this.pauseEvent(e)
       if (this.isTouch) {
         this.throttle(() => {
-          console.log('move2', e)
-          this.endPoint = {x: e.x, y: e.y}
+          console.log('touchmove')
+          const touches = e.touches
+          console.log(touches, e)
+          this.endPoint = {x: touches[0].clientX, y: touches[0].clientY}
           
           const dx = (this.startPoint.x - this.endPoint.x)
           const dy = (this.startPoint.y - this.endPoint.y)
@@ -236,9 +248,12 @@ export default {
 
     touchend (e) {
       this.pauseEvent(e)
-      console.log('up')
+      console.log('touchend')
       if (this.isTouch) {
-        this.endPoint = {x: e.x, y: e.y}
+        const touches = e.changedTouches
+
+        console.log(e)
+        this.endPoint = {x: touches[0].clientX, y: touches[0].clientY}
         const dx = (this.startPoint.x - this.endPoint.x)
         const dy = (this.startPoint.y - this.endPoint.y)
         this.x = this.x - dx 
@@ -249,14 +264,14 @@ export default {
     mouseleave (e) {
       this.pauseEvent(e)
       console.log('leave')
-      if (this.isTouch) {
+      if (this.isMove) {
         this.endPoint = {x: e.x, y: e.y}
         const dx = (this.startPoint.x - this.endPoint.x)
         const dy = (this.startPoint.y - this.endPoint.y)
         this.x = this.x - dx 
         this.y = this.y - dy
       }
-      this.isTouch = false
+      this.isMove = false
     },
 
     getStyle (ele, style) {
