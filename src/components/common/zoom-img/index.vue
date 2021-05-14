@@ -48,6 +48,7 @@ export default {
       bodyEl: document.body,
       top: 0,
       isMove: false,
+      isTouch: false,
       startPoint: {},
       endPoint: {},
       x: 0,
@@ -132,7 +133,7 @@ export default {
     },
 
     handleEvent (add = true) {
-      const eventGroup = [{name: 'mousedown', e: this.mousedown}, {name: 'mousemove', e: this.mousemove}, {name: 'mouseup', e: this.mouseup}, {name: 'mouseleave', e: this.mouseleave}]
+      const eventGroup = [{name: 'mousedown', e: this.mousedown}, {name: 'mousemove', e: this.mousemove}, {name: 'mouseup', e: this.mouseup}, {name: 'mouseleave', e: this.mouseleave}, {name: 'touchstart', e: this.touchstart}, {name: 'touchmove', e: this.touchmove}, {name: 'touchend', e: this.touchend}]
       const eventKey = add ? 'addEventListener' : 'removeEventListener'
       this.$nextTick(() => {
         // 监听 eventGroup中的事件，控制图片的移动
@@ -197,6 +198,7 @@ export default {
     },
 
     mouseup (e) {
+      if (this.isMobile()) return
       this.pauseEvent(e)
       console.log('up')
       if (this.isMove) {
@@ -209,17 +211,52 @@ export default {
       }
     },
 
+    touchstart (e) {
+      this.pauseEvent(e)
+
+      this.isTouch = true
+      this.startPoint = {x: e.x, y: e.y}
+    },
+
+    touchmove (e) {
+      this.pauseEvent(e)
+      if (this.isTouch) {
+        this.throttle(() => {
+          console.log('move2', e)
+          this.endPoint = {x: e.x, y: e.y}
+          
+          const dx = (this.startPoint.x - this.endPoint.x)
+          const dy = (this.startPoint.y - this.endPoint.y)
+          this.startPoint = {x: this.endPoint.x, y: this.endPoint.y}
+          this.x = this.x - dx
+          this.y = this.y - dy
+        })()
+      }
+    },
+
+    touchend (e) {
+      this.pauseEvent(e)
+      console.log('up')
+      if (this.isTouch) {
+        this.endPoint = {x: e.x, y: e.y}
+        const dx = (this.startPoint.x - this.endPoint.x)
+        const dy = (this.startPoint.y - this.endPoint.y)
+        this.x = this.x - dx 
+        this.y = this.y - dy
+        this.isTouch = false
+      }
+    },
     mouseleave (e) {
       this.pauseEvent(e)
       console.log('leave')
-      if (this.isMove) {
+      if (this.isTouch) {
         this.endPoint = {x: e.x, y: e.y}
         const dx = (this.startPoint.x - this.endPoint.x)
         const dy = (this.startPoint.y - this.endPoint.y)
         this.x = this.x - dx 
         this.y = this.y - dy
       }
-      this.isMove = false
+      this.isTouch = false
     },
 
     getStyle (ele, style) {
@@ -240,6 +277,11 @@ export default {
       })
     },
 
+    isMobile () {
+      const ua = navigator.userAgent.toLowerCase()
+      // APP 内展示移动端版本
+      return this.isInApp() || (/iphone|android|ucweb|ucbrowser|nokia|sony|ericsson|mot|samsung|sgh|lg|philips|panasonic|alcatel|lenovo|cldc|midp|wap|mobile/i.test(ua) && !/ipad/i.test(ua)) || document.body.clientWidth <= 768
+    },
     /**
      * 阻止默认事件 和 冒泡行为
      */
@@ -262,7 +304,6 @@ export default {
         if (!ticking) {
           ticking = true
           window.requestAnimationFrame(function () {
-            console.log('sss')
             callback && callback()
             ticking = false
           })
@@ -327,7 +368,7 @@ img {
   > img {
     // position: absolute;
     // width: 100%;
-    width: 300px;
+    width: 80%;
     height: auto;
     transform-origin: center;
     cursor: move;
