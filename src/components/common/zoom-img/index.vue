@@ -25,9 +25,7 @@
           </div>
 
         </slot>
-        <slot name="extra" >
-          <span @click="reset50">{{this.x}}-{{this.y}}</span>
-        </slot>
+        <slot name="extra"></slot>
       </div>
     </transition>
   </div>
@@ -52,7 +50,9 @@ export default {
       startPoint: {},
       endPoint: {},
       x: 0,
-      y: 0
+      y: 0,
+      boundary: {}, // 边界
+      env: ''
     }
   },
   props: {
@@ -97,7 +97,14 @@ export default {
     },
     imgStyle () {
       return {
-        transform: `translate(${this.x}px, ${this.y}px)`,
+        transform: `translate(${this.x.toFixed(2)}px, ${this.y.toFixed(2)}px)`,
+      }
+    },
+    offsetRatio () {
+      // 图片元素位置相对于父元素的偏移比例
+      return {
+        x: this.x / this.wrapWidth,
+        y: this.y / this.wrapHeight
       }
     }
   },
@@ -125,8 +132,8 @@ export default {
     },
 
     resetData () {
-      this.init = true
       this.ratio = this.initRatio
+      this.boundary = {}
     },
 
     mousewheelEvent (add = true) {
@@ -152,9 +159,14 @@ export default {
         // 监听滚轮事件
         this.mousewheelEvent(add)
 
+        this.env = this.isMobile() ? 'mobile' : 'pc'
+
         // 视图发生变化
         window.onresize = () => {
-          // this.initPostion()
+          if((this.isMobile() && this.env === 'pc') || (!this.isMobile() && this.env === 'mobile')) {
+            this.setPosition()
+            this.env = this.isMobile() ? 'mobile' : 'pc'
+          }
         }
       })
     },
@@ -218,52 +230,8 @@ export default {
       }
     },
 
-    touchstart (e) {
-      console.log('touchstart')
-      this.pauseEvent(e)
-      
-      const touches = e.touches
-
-      this.isTouch = true
-      this.startPoint = {x: touches[0].clientX, y: touches[0].clientY}
-    },
-
-    touchmove (e) {
-      this.pauseEvent(e)
-      if (this.isTouch) {
-        this.throttle(() => {
-          console.log('touchmove')
-          const touches = e.touches
-          console.log(touches, e)
-          this.endPoint = {x: touches[0].clientX, y: touches[0].clientY}
-          
-          const dx = (this.startPoint.x - this.endPoint.x)
-          const dy = (this.startPoint.y - this.endPoint.y)
-          this.startPoint = {x: this.endPoint.x, y: this.endPoint.y}
-          this.x = this.x - dx
-          this.y = this.y - dy
-        })()
-      }
-    },
-
-    touchend (e) {
-      this.pauseEvent(e)
-      console.log('touchend')
-      if (this.isTouch) {
-        const touches = e.changedTouches
-
-        console.log(e)
-        this.endPoint = {x: touches[0].clientX, y: touches[0].clientY}
-        const dx = (this.startPoint.x - this.endPoint.x)
-        const dy = (this.startPoint.y - this.endPoint.y)
-        this.x = this.x - dx 
-        this.y = this.y - dy
-        this.isTouch = false
-      }
-    },
     mouseleave (e) {
       this.pauseEvent(e)
-      console.log('leave')
       if (this.isMove) {
         this.endPoint = {x: e.x, y: e.y}
         const dx = (this.startPoint.x - this.endPoint.x)
@@ -272,6 +240,111 @@ export default {
         this.y = this.y - dy
       }
       this.isMove = false
+    },
+
+    touchstart (e) {
+      this.pauseEvent(e)
+      const touches = e.touches
+      this.isTouch = true
+      this.startPoint = {x: touches[0].clientX, y: touches[0].clientY}
+    },
+
+    touchmove (e) {
+      this.pauseEvent(e)
+      if (this.isTouch) {
+        this.throttle(() => {
+          const touches = e.touches
+          this.endPoint = {x: touches[0].clientX, y: touches[0].clientY}
+          
+          const dx = (this.startPoint.x - this.endPoint.x)
+          const dy = (this.startPoint.y - this.endPoint.y)
+          const offsetX = this.x - dx
+          const offsetY = this.y - dy
+
+          // x 坐标
+          if (offsetX > this.boundary.right && offsetX > 0) {
+            // 右边界
+            this.x = this.boundary.right
+          } else if (offsetX <= this.boundary.left && offsetX < 0) {
+            // 左边界
+            this.x = this.boundary.left
+          } else {
+            this.startPoint.x = this.endPoint.x
+            this.x = offsetX
+          }
+
+          // y 坐标
+          if (offsetY > this.boundary.bottom) {
+            // 下边界
+            this.y = this.boundary.bottom
+          } else if (offsetY <= this.boundary.top) {
+             // 上边界
+            this.y = this.boundary.top
+          }else {
+            this.startPoint.y = this.endPoint.y
+            this.y = offsetY
+          }
+
+        })()
+      }
+    },
+
+    touchend (e) {
+      this.pauseEvent(e)
+      // console.log('touchend')
+      if (this.isTouch) {
+        const touches = e.changedTouches
+
+        // console.log(e)
+        this.endPoint = {x: touches[0].clientX, y: touches[0].clientY}
+        const dx = (this.startPoint.x - this.endPoint.x)
+        const dy = (this.startPoint.y - this.endPoint.y)
+
+        const offsetX = this.x - dx
+        const offsetY = this.y - dy
+          
+        // x 坐标
+        if (offsetX > this.boundary.right) {
+          // 右边界
+          this.x = this.boundary.right
+        } else if (offsetX <= this.boundary.left) {
+          // 左边界
+          this.x = this.boundary.left
+        } else {
+          this.x = offsetX
+        }
+
+        // y 坐标
+        if (offsetY > this.boundary.bottom) {
+          // 下边界
+          this.y = this.boundary.bottom
+        } else if (offsetY <= this.boundary.top) {
+          // 上边界
+          this.y = this.boundary.top
+        } else {
+          this.y = offsetY
+        }
+
+        this.isTouch = false
+      }
+    },
+    setPosition () {
+      this.$nextTick (() => {
+        const width = parseFloat(this.getStyle(this.imgEle, 'width'))
+        const height = parseFloat(this.getStyle(this.imgEle, 'height'))
+        
+        const offsetRatio = Object.assign({}, this.offsetRatio)
+        console.log(offsetRatio)
+
+        const wrapWidth = parseFloat(this.getStyle(this.imgEle.parentElement, 'width'))
+        const wrapHeight = parseFloat(this.getStyle(this.imgEle.parentElement, 'height'))
+        
+        this.initBoundary({wrapWidth, wrapHeight, width, height})
+
+        this.x = offsetRatio.x * wrapWidth
+        this.y = offsetRatio.y * wrapHeight
+
+      })
     },
 
     getStyle (ele, style) {
@@ -286,12 +359,31 @@ export default {
         
         const wrapWidth = parseFloat(this.getStyle(this.imgEle.parentElement, 'width'))
         const wrapHeight = parseFloat(this.getStyle(this.imgEle.parentElement, 'height'))
+        this.wrapWidth = wrapWidth
+        this.wrapHeight = wrapHeight
+        this.initBoundary({wrapWidth, wrapHeight, width, height})
 
         this.x = (wrapWidth - width) / 2
         this.y = (wrapHeight - height) / 2
       })
     },
-
+    /**
+     * 初始化触摸区域边界
+     */
+    initBoundary ({wrapWidth, wrapHeight, width, height}) {
+      // 偏移量，防止元素完全移除可是区域
+      const offset = {
+        x: 10,
+        y: 10,
+      }
+      this.boundary.top = -height + offset.y
+      this.boundary.right = wrapWidth - offset.x
+      this.boundary.bottom = wrapHeight - offset.y
+      this.boundary.left =  -width + offset.x
+    },
+    isInApp: function () {
+      return !!navigator.userAgent.match(/org\.geekbang\.GeekTime/i)
+    },
     isMobile () {
       const ua = navigator.userAgent.toLowerCase()
       // APP 内展示移动端版本
@@ -325,9 +417,6 @@ export default {
         }
       }
     },
-    reset50 () {
-      this.ratio = 50
-    }
   }
 }
 </script>
@@ -337,6 +426,7 @@ export default {
   width: 100%;
   height: 100%;
   margin: auto;
+  -webkit-tap-highlight-color: transparent;
 }
 .modal-mask {
   position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 1;
