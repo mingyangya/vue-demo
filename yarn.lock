@@ -2795,6 +2795,11 @@ copy-descriptor@^0.1.0:
   resolved "http://npmregistry.geekbang.org/copy-descriptor/-/copy-descriptor-0.1.1.tgz#676f6eb3c39997c2ee1ac3a924fd6124748f578d"
   integrity sha1-Z29us8OZl8LuGsOpJP1hJHSPV40=
 
+copy-text-to-clipboard@^3.0.1:
+  version "3.0.1"
+  resolved "http://npmregistry.geekbang.org/copy-text-to-clipboard/-/copy-text-to-clipboard-3.0.1.tgz#8cbf8f90e0a47f12e4a24743736265d157bce69c"
+  integrity sha512-rvVsHrpFcL4F2P8ihsoLdFHmd404+CMg71S756oRSeQgqk51U3kicGdnvfkrxva0xXH92SjGS62B0XIJsbh+9Q==
+
 copy-webpack-plugin@^5.1.1:
   version "5.1.2"
   resolved "http://npmregistry.geekbang.org/copy-webpack-plugin/-/copy-webpack-plugin-5.1.2.tgz#8a889e1dcafa6c91c6cd4be1ad158f1d3823bae2"
@@ -2820,6 +2825,11 @@ core-js-compat@^3.6.5, core-js-compat@^3.8.1, core-js-compat@^3.9.0:
   dependencies:
     browserslist "^4.16.3"
     semver "7.0.0"
+
+core-js@^3.11.0:
+  version "3.12.1"
+  resolved "http://npmregistry.geekbang.org/core-js/-/core-js-3.12.1.tgz#6b5af4ff55616c08a44d386f1f510917ff204112"
+  integrity sha512-Ne9DKPHTObRuB09Dru5AjwKjY4cJHVGu+y5f7coGn1E9Grkc3p2iBwE9AI/nJzsE29mQF7oq+mhYYRqOMFN1Bw==
 
 core-js@^3.6.5:
   version "3.9.0"
@@ -5867,6 +5877,11 @@ multicast-dns@^6.0.1:
     dns-packet "^1.3.1"
     thunky "^1.0.2"
 
+mutation-observer@^1.0.3:
+  version "1.0.3"
+  resolved "http://npmregistry.geekbang.org/mutation-observer/-/mutation-observer-1.0.3.tgz#42e9222b101bca82e5ba9d5a7acf4a14c0f263d0"
+  integrity sha512-M/O/4rF2h776hV7qGMZUH3utZLO/jK7p8rnNgGkjKUw8zCGjRQPxB8z6+5l8+VjRUQ3dNYu4vjqXYLr+U8ZVNA==
+
 mute-stream@0.0.8:
   version "0.0.8"
   resolved "http://npmregistry.geekbang.org/mute-stream/-/mute-stream-0.0.8.tgz#1630c42b2251ff81e2a283de96a5497ea92e5e0d"
@@ -8686,6 +8701,15 @@ vary@~1.1.2:
   version "1.1.2"
   resolved "http://npmregistry.geekbang.org/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=
+
+vconsole@^3.3.4:
+  version "3.5.2"
+  resolved "http://npmregistry.geekbang.org/vconsole/-/vconsole-3.5.2.tgz#21f5a88dde1abc1f1aab41234603f92e9c84be2f"
+  integrity sha512-UjAm6q7+LG1y3JpDBZrHEpTRmdKEGXcJ8l3D3cGINCfXxUrcL8qZoZBtpVEhkVgX+2DfxmBqT1cCm4YOJFQUTg==
+  dependencies:
+    copy-text-to-clipboard "^3.0.1"
+    core-js "^3.11.0"
+    mutation-observer "^1.0.3"
 
 vendors@^1.0.0:
   version "1.0.4"

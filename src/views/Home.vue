@@ -1,14 +1,14 @@
 <template>
   <div class="home">
-    <button @click="show">gkModal图</button>
+    <!-- <button @click="show">gkModal图</button> -->
     <button @click="show2">图</button>
-    <ZoomImg ref='zoomImgEle' />
+    <!-- <ZoomImg ref='zoomImgEle' /> -->
     <ZoomImg2 ref='zoomImgEle2' />
   </div>
 </template>
 
 <script>
-import ZoomImg from '@/components/common/zoom-img/ZoomImg'
+// import ZoomImg from '@/components/common/zoom-img/ZoomImg'
 import ZoomImg2 from '@/components/common/zoom-img/index'
 
 export default {
@@ -18,17 +18,17 @@ export default {
     }
   },
   components: {
-    ZoomImg,
+    // ZoomImg,
     ZoomImg2
   },
   created () {
     this.$nextTick(() => {
-      this.show2()
+      // this.show2()
     })
   },
   methods: {
     show () {
-      this.$refs.zoomImgEle.open()
+      // this.$refs.zoomImgEle.open()
     },
     show2 () {
       this.$refs.zoomImgEle2.open()

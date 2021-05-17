@@ -1,11 +1,14 @@
 <template>
-  <div class="zoom-img-dialog" v-if="show">
+  <div :class="['zoom-img-dialog', {mobile: isMobile}]" v-if="show">
     <transition name="fade">
-      <div modal-mask class="modal-mask">
+      <div modal-mask class="modal-mask" @click="close">
       </div>
     </transition>
     <transition :name="transition">
       <div class="modal-main">
+        <slot name="close">
+          <span class="close" @click="close"></span>
+        </slot>
         <div class="modal-head"></div>
         <div class="modal-content">
           <div class="img-area" :style="zoomArea">
@@ -35,9 +38,9 @@ export default {
   name: 'zoon-img',
   data () {
     return {
-      show: true,
+      show: false,
       initRatio: 100, // 初始缩放比
-      ratio: 100, // 每次缩放的比列
+      ratio: 100, // 比列
       add: 10, // 增量
       min: 10, // 最小缩放比
       max: this.option.x || 200, // 最大缩放比
@@ -81,15 +84,6 @@ export default {
     }
   },
   computed: {
-    imgBoxEle () {
-      return this.$refs.imgBoxEle
-    },
-    imgWrapEle () {
-      return this.$refs.imgWrapEle
-    },
-    imgEle () {
-      return this.$refs.imgEle
-    },
     imgWrapStyle () {
       return {
         transform: `scale(${this.ratio / 100})`,
@@ -108,17 +102,10 @@ export default {
       }
     }
   },
-  beforeDestroy () {
-    this.handleEvent(false)
-    this.resetData()
-  },
-  created () {
-    this.handleEvent(true)
-  },
   methods: {
     open () {
-      this.handleEvent(true)
       this.show = true
+      this.handleEvent(true)
     },
 
     close () {
@@ -127,19 +114,20 @@ export default {
       this.resetData()
     },
 
-    init (){
-      this.handleEvent(true)
-    },
-
     resetData () {
       this.ratio = this.initRatio
+      this.x = 0
+      this.y = 0
+      this.startPoint = {}
+      this.endPoint = {}
       this.boundary = {}
+      this.env = ''
     },
 
     mousewheelEvent (add = true) {
-       // FF doesn't recognize mousewheel as of FF3.x
+      // FF doesn't recognize mousewheel as of FF3.x
       const _mousewheelEvent = /Firefox/i.test(navigator.userAgent) ? 'DOMMouseScroll' : 'mousewheel'
-      add ? this.imgBoxEle.addEventListener(_mousewheelEvent, this.mouseWheel) : this.imgBoxEle.removeEventListener(_mousewheelEvent, this.mouseWheel)
+      add ? this.$refs.imgBoxEle.addEventListener(_mousewheelEvent, this.mouseWheel) : this.$refs.imgBoxEle.removeEventListener(_mousewheelEvent, this.mouseWheel)
     },
 
     handleEvent (add = true) {
@@ -148,24 +136,36 @@ export default {
       this.$nextTick(() => {
         // 监听 eventGroup中的事件，控制图片的移动
         eventGroup.forEach(item => {
-          this.imgWrapEle[eventKey](item.name, item.e)
+          this.$refs.imgWrapEle[eventKey](item.name, item.e)
         })
-
-        // 初始化图片位置，默认水平、垂直居中
-        this.imgEle.onload = () => {
-          this.initPostion()
-        }
 
         // 监听滚轮事件
         this.mousewheelEvent(add)
 
-        this.env = this.isMobile() ? 'mobile' : 'pc'
+        if (add) {
+          // 初始化图片位置，默认水平、垂直居中
+          console.log('this.$refs.imgEle.complete:', this.$refs.imgEle.complete, this.$refs.imgEle.readyState, this.isIE())
+          if (!this.isIE() && this.$refs.imgEle && this.$refs.imgEle.complete) {
+            // 已onload的图片
+            this.initPostion()
+            this.$refs.imgEle.onload = () => {
+              console.log('不会触发')
+            }
+          } else {
+            this.$refs.imgEle.onload = () => {
+              console.log('onload')
+              this.initPostion()
+            }
+          }
 
-        // 视图发生变化
-        window.onresize = () => {
-          if((this.isMobile() && this.env === 'pc') || (!this.isMobile() && this.env === 'mobile')) {
-            this.setPosition()
-            this.env = this.isMobile() ? 'mobile' : 'pc'
+          this.env = this.isMobile() ? 'mobile' : 'pc'
+          // 拖动区域发生变化
+          this.$refs.imgWrapEle.onresize = () => {
+            // pc 和 mobile 相互切换
+            if((this.isMobile() && this.env === 'pc') || (!this.isMobile() && this.env === 'mobile')) {
+              this.setPosition()
+              this.env = this.isMobile() ? 'mobile' : 'pc'
+            }
           }
         }
       })
@@ -330,14 +330,13 @@ export default {
     },
     setPosition () {
       this.$nextTick (() => {
-        const width = parseFloat(this.getStyle(this.imgEle, 'width'))
-        const height = parseFloat(this.getStyle(this.imgEle, 'height'))
+        const width = parseFloat(this.getStyle(this.$refs.imgEle, 'width'))
+        const height = parseFloat(this.getStyle(this.$refs.imgEle, 'height'))
         
         const offsetRatio = Object.assign({}, this.offsetRatio)
-        console.log(offsetRatio)
 
-        const wrapWidth = parseFloat(this.getStyle(this.imgEle.parentElement, 'width'))
-        const wrapHeight = parseFloat(this.getStyle(this.imgEle.parentElement, 'height'))
+        const wrapWidth = parseFloat(this.getStyle(this.$refs.imgEle.parentElement, 'width'))
+        const wrapHeight = parseFloat(this.getStyle(this.$refs.imgEle.parentElement, 'height'))
         
         this.initBoundary({wrapWidth, wrapHeight, width, height})
 
@@ -348,21 +347,23 @@ export default {
     },
 
     getStyle (ele, style) {
+      // todo ie样式 获取bug，取到的是css样式中的值，而非渲染值
       // 获取元素样式
-      return ele.currentStyle ? ele.currentStyle[style] : window.getComputedStyle(ele, null)[style];
+      console.log(ele.currentStyle)
+      console.log(ele.getClientRects())
+      return window.getComputedStyle(ele, null)[style];
     },
-
     initPostion () {
       this.$nextTick (() => {
-        const width = parseFloat(this.getStyle(this.imgEle, 'width'))
-        const height = parseFloat(this.getStyle(this.imgEle, 'height'))
-        
-        const wrapWidth = parseFloat(this.getStyle(this.imgEle.parentElement, 'width'))
-        const wrapHeight = parseFloat(this.getStyle(this.imgEle.parentElement, 'height'))
+        const width = parseFloat(this.getStyle(this.$refs.imgEle, 'width'))
+        const height = parseFloat(this.getStyle(this.$refs.imgEle, 'height'))
+
+        const wrapWidth = parseFloat(this.getStyle(this.$refs.imgWrapEle, 'width'))
+        const wrapHeight = parseFloat(this.getStyle(this.$refs.imgEle.parentElement, 'height'))
         this.wrapWidth = wrapWidth
         this.wrapHeight = wrapHeight
+console.log({width, height, wrapWidth, wrapHeight})
         this.initBoundary({wrapWidth, wrapHeight, width, height})
-
         this.x = (wrapWidth - width) / 2
         this.y = (wrapHeight - height) / 2
       })
@@ -388,6 +389,11 @@ export default {
       const ua = navigator.userAgent.toLowerCase()
       // APP 内展示移动端版本
       return this.isInApp() || (/iphone|android|ucweb|ucbrowser|nokia|sony|ericsson|mot|samsung|sgh|lg|philips|panasonic|alcatel|lenovo|cldc|midp|wap|mobile/i.test(ua) && !/ipad/i.test(ua)) || document.body.clientWidth <= 768
+    },
+    // 检查当前是否是 ie 浏览器（Edge 除外）
+    isIE () {
+      const ua = navigator.userAgent.toLowerCase()
+      return ((ua.indexOf('trident') > -1 && ua.indexOf('rv') > -1) || ua.match(/msie/i))
     },
     /**
      * 阻止默认事件 和 冒泡行为
@@ -444,9 +450,27 @@ export default {
   min-width: 180px;
   width: 80%;
   margin: 0 auto 0;
-  padding: 20px;
+  padding: 30px 20px;
   border-radius: 4px;
   background: #fff;
+}
+.close {
+  display: block;
+  position: absolute; right: 5px; top: 5px;
+  width: 20px;
+  height: 20px;
+  background: url(./img/i_close.png) no-repeat center / 10px;
+  cursor: pointer;
+  &:hover {
+    background-image: url(./img/i_close_hover.png);
+  }
+}
+.mobile {
+  .close {
+    &:hover {
+      background-image: url(./img/i_close.png);
+    }
+  }
 }
 .main-content {
   box-sizing: border-box;
