@@ -45,6 +45,7 @@ export default {
       min: 10, // 最小缩放比
       max: this.option.x || 200, // 最大缩放比
       defaultImg: require('./img/demo.png'),
+      adapte: true, // 适应pc和mobile切换
       timer: null,
       bodyEl: document.body,
       top: 0,
@@ -72,7 +73,7 @@ export default {
       default () {
         return {
           width: '100%',
-          height: '420px'
+          height: '100%'
         }
       }
     },
@@ -90,9 +91,8 @@ export default {
       }
     },
     imgStyle () {
-      return {
-        transform: `translate(${this.x.toFixed(2)}px, ${this.y.toFixed(2)}px)`,
-      }
+      // transform: translate 于ie11测试有抖动现象，用margin替代
+      return this.isIE() ? {margin: `${this.y.toFixed(2)}px 0 0 ${this.x.toFixed(2)}px`} : {transform: `translate(${this.x.toFixed(2)}px, ${this.y.toFixed(2)}px)`}
     },
     offsetRatio () {
       // 图片元素位置相对于父元素的偏移比例
@@ -143,28 +143,32 @@ export default {
         this.mousewheelEvent(add)
 
         if (add) {
-          // 初始化图片位置，默认水平、垂直居中
-          console.log('this.$refs.imgEle.complete:', this.$refs.imgEle.complete, this.$refs.imgEle.readyState, this.isIE())
-          if (!this.isIE() && this.$refs.imgEle && this.$refs.imgEle.complete) {
-            // 已onload的图片
-            this.initPostion()
+
+          if (this.isIE()) {
+            // IE img 一直触发onload
             this.$refs.imgEle.onload = () => {
-              console.log('不会触发')
+              this.initPostion()
             }
           } else {
-            this.$refs.imgEle.onload = () => {
-              console.log('onload')
+            if (this.$refs.imgEle && this.$refs.imgEle.complete) {
+              // 已onload的图片不触发onload
               this.initPostion()
+            } else {
+              this.$refs.imgEle.onload = () => {
+                this.initPostion()
+              }
             }
           }
 
-          this.env = this.isMobile() ? 'mobile' : 'pc'
-          // 拖动区域发生变化
-          this.$refs.imgWrapEle.onresize = () => {
-            // pc 和 mobile 相互切换
-            if((this.isMobile() && this.env === 'pc') || (!this.isMobile() && this.env === 'mobile')) {
-              this.setPosition()
-              this.env = this.isMobile() ? 'mobile' : 'pc'
+          if (this.adapte) {
+            this.env = this.isMobile() ? 'mobile' : 'pc'
+            // 拖动区域发生变化
+            this.$refs.imgWrapEle.onresize = () => {
+              // pc 和 mobile 相互切换
+              if((this.isMobile() && this.env === 'pc') || (!this.isMobile() && this.env === 'mobile')) {
+                this.setPosition()
+                this.env = this.isMobile() ? 'mobile' : 'pc'
+              }
             }
           }
         }
@@ -198,7 +202,6 @@ export default {
     },
     mousedown (e) {
       this.pauseEvent(e)
-
       this.isMove = true
       this.startPoint = {x: e.x, y: e.y}
     },
@@ -219,7 +222,6 @@ export default {
 
     mouseup (e) {
       this.pauseEvent(e)
-      console.log('up')
       if (this.isMove) {
         this.endPoint = {x: e.x, y: e.y}
         const dx = (this.startPoint.x - this.endPoint.x)
@@ -291,18 +293,16 @@ export default {
 
     touchend (e) {
       this.pauseEvent(e)
-      // console.log('touchend')
       if (this.isTouch) {
         const touches = e.changedTouches
 
-        // console.log(e)
         this.endPoint = {x: touches[0].clientX, y: touches[0].clientY}
         const dx = (this.startPoint.x - this.endPoint.x)
         const dy = (this.startPoint.y - this.endPoint.y)
 
         const offsetX = this.x - dx
         const offsetY = this.y - dy
-          
+
         // x 坐标
         if (offsetX > this.boundary.right) {
           // 右边界
@@ -332,7 +332,6 @@ export default {
       this.$nextTick (() => {
         const width = parseFloat(this.getStyle(this.$refs.imgEle, 'width'))
         const height = parseFloat(this.getStyle(this.$refs.imgEle, 'height'))
-        
         const offsetRatio = Object.assign({}, this.offsetRatio)
 
         const wrapWidth = parseFloat(this.getStyle(this.$refs.imgEle.parentElement, 'width'))
@@ -346,13 +345,20 @@ export default {
       })
     },
 
-    getStyle (ele, style) {
-      // todo ie样式 获取bug，取到的是css样式中的值，而非渲染值
-      // 获取元素样式
-      console.log(ele.currentStyle)
-      console.log(ele.getClientRects())
-      return window.getComputedStyle(ele, null)[style];
+    /**
+     * 获取元素的样式
+     * notice： getComputedStyle获取的为resolved values（解析值），对于一些旧属性（包括宽度和高度），它是使用值used value（应用值）
+     * @see https://developer.mozilla.org/zh-CN/docs/Web/API/Window/getComputedStyle
+     * @param {Element} ele dom元素
+     * @param {String} name 属性名
+     * @param {String} pseudoElt 伪元素属性名
+     */
+    getStyle (ele, name, pseudoElt = null) {
+      return getComputedStyle(ele, pseudoElt)[name];
     },
+    /**
+     * 初始化图片位置，默认水平、垂直居中
+     */
     initPostion () {
       this.$nextTick (() => {
         const width = parseFloat(this.getStyle(this.$refs.imgEle, 'width'))
@@ -362,7 +368,7 @@ export default {
         const wrapHeight = parseFloat(this.getStyle(this.$refs.imgEle.parentElement, 'height'))
         this.wrapWidth = wrapWidth
         this.wrapHeight = wrapHeight
-console.log({width, height, wrapWidth, wrapHeight})
+
         this.initBoundary({wrapWidth, wrapHeight, width, height})
         this.x = (wrapWidth - width) / 2
         this.y = (wrapHeight - height) / 2
@@ -372,7 +378,7 @@ console.log({width, height, wrapWidth, wrapHeight})
      * 初始化触摸区域边界
      */
     initBoundary ({wrapWidth, wrapHeight, width, height}) {
-      // 偏移量，防止元素完全移除可是区域
+      // 偏移量，防止元素完全移出可视区域
       const offset = {
         x: 10,
         y: 10,
@@ -416,7 +422,7 @@ console.log({width, height, wrapWidth, wrapHeight})
       return function () {
         if (!ticking) {
           ticking = true
-          window.requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
             callback && callback()
             ticking = false
           })
@@ -446,11 +452,10 @@ console.log({width, height, wrapWidth, wrapHeight})
   box-sizing: border-box;
   position: relative; top:50%; z-index: 2;
   transform: translate(0, -50%);
-  // width: 100%;
   min-width: 180px;
   width: 80%;
   margin: 0 auto 0;
-  padding: 30px 20px;
+  padding: 30px 20px 20px;
   border-radius: 4px;
   background: #fff;
 }
@@ -495,8 +500,6 @@ img {
   background: #333;
   // pointer-events: stroke;
   > img {
-    // position: absolute;
-    // width: 100%;
     width: 80%;
     height: auto;
     transform-origin: center;
