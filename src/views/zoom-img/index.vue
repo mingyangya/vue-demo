@@ -1,7 +1,7 @@
 <template>
 <Layout>
   <div class="zoom-img">
-    <ZoomImg ref='zoomImgEle' :src="src" @open="open" @close="close" title="点击查看大图"/>
+    <ZoomImg ref='zoomImgEle' class="image" :src="src" @open="open" @close="close" title="点击查看大图"/>
   </div>
 </Layout>
 </template>
@@ -9,11 +9,11 @@
 <script>
 import Layout from '@/components/layout/index'
 import ZoomImg from '@/components/common/zoom-img/index'
-
+// import Mock from 'mockjs'
 export default {
   data () {
     return  {
-      src: 'https://cn.vuejs.org/images/logo.png'
+      src: 'https://webpack.docschina.org/icon-square-small.85ba630cf0c5f29ae3e3.svg'
     }
   },
   components: {
@@ -36,8 +36,9 @@ button{
   padding: 10px 30px;
   cursor: pointer;
 }
-img {
+.image {
   width: 200px;
   cursor: pointer;
 }
+
 </style>
