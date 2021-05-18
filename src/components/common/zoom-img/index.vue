@@ -1,50 +1,54 @@
 <template>
-  <div :class="['zoom-img-dialog', {mobile: isMobile}]" v-if="show">
-    <transition name="fade">
-      <div modal-mask class="modal-mask" @click="close">
-      </div>
-    </transition>
-    <transition :name="transition">
-      <div class="modal-main">
-        <slot name="close">
-          <span class="close" @click="close"></span>
-        </slot>
-        <div class="modal-head"></div>
-        <div class="modal-content">
-          <div class="img-area" :style="zoomArea">
-            <div class="img-box" ref="imgBoxEle">
+  <div class="zoom-img-container">
+    <div class="img">
+      <img :src="src || defaultImg" :alt="alt" :title="title" :style="style" @onload="onload" @click="clickImg">
+    </div>
+
+    <div :class="['zoom-img-dialog', {mobile: isMobile}]" v-if="show">
+      <transition name="fade">
+        <div modal-mask class="modal-mask" @click="close">
+        </div>
+      </transition>
+      <transition :name="transition">
+        <div class="modal-main" :style="{'opacity': opacity}">
+          <slot name="close">
+            <span class="close" @click="close"></span>
+          </slot>
+          <div class="modal-head"></div>
+          <div class="modal-content" >
+            <div class="img-box" ref="imgBoxEle" :style="zoomArea">
               <div class="img-wrap" ref="imgWrapEle" :style="imgWrapStyle">
                 <img ref="imgEle" :src="src || defaultImg" :style="imgStyle" alt="zoom-img">
               </div>
             </div>
           </div>
+
+          <slot name="footer">
+            <div class="tool-group">
+              <span class="zoom-out" @click="zoomOut"></span>
+              <span class="zoom-text">{{ratio}}%</span>
+              <span class="zoom-in" @click="zoomIn"></span>
+            </div>
+          </slot>
+
+          <slot name="extra"></slot>
         </div>
+      </transition>
+    </div>
 
-        <slot name="footer">
-          <div class="tool-group">
-            <span class="zoom-out" @click="zoomOut"></span>
-            <span class="zoom-text">{{ratio}}%</span>
-            <span class="zoom-in" @click="zoomIn"></span>
-          </div>
-
-        </slot>
-        <slot name="extra"></slot>
-      </div>
-    </transition>
-  </div>
+  </div> 
 </template>
 <script>
 export default {
-  name: 'zoon-img',
   data () {
     return {
+      defaultImg: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEVHcEyC+tLSAAAAAXRSTlMAQObYZgAAAApJREFUeNpjYQAAAAoABUouQOkAAAAASUVORK5CYII=`, // 透明图
       show: false,
       initRatio: 100, // 初始缩放比
       ratio: 100, // 比列
       add: 10, // 增量
       min: 10, // 最小缩放比
       max: this.option.x || 200, // 最大缩放比
-      defaultImg: require('./img/demo.png'),
       adapte: true, // 适应pc和mobile切换
       timer: null,
       bodyEl: document.body,
@@ -56,10 +60,24 @@ export default {
       x: 0,
       y: 0,
       boundary: {}, // 边界
-      env: ''
+      env: '',
+      opacity: 0
     }
   },
   props: {
+    width: {
+      type: [String, Number],
+      default: 0
+    },
+    height: {
+      type: [String, Number],
+      default: 0
+    },
+    alt: {
+      type: String,
+      default: ''
+    },
+    title: String,
     transition: {
       type: String,
       default () {
@@ -67,16 +85,8 @@ export default {
       }
     },
     src: String,
-    zoomArea: {
-      // 图片区域
-      type: Object,
-      default () {
-        return {
-          width: '100%',
-          height: '100%'
-        }
-      }
-    },
+    // 图片区域
+    zoomArea: Object,
     option: {
       type: Object,
       default () {
@@ -85,6 +95,28 @@ export default {
     }
   },
   computed: {
+    style () {
+      let style = {}
+      const w = this.width
+      const h = this.height
+
+      if (w) {
+        if (String(w).match(/^[\d]+$/)) {
+          style.width = `${w}px`
+        } else if (String(w).match(/^[\d]+(vw|vh|px|em|%)$/)) {
+          style.width = w
+        }
+      }
+
+      if (h) {
+        if (String(h).match(/^[\d]+$/)) {
+          style.height = `${h}px`
+        } else if (String(h).match(/^[\d]+(vw|vh|px|em|%)$/)) {
+          style.height = h
+        }
+      }
+      return style
+    },
     imgWrapStyle () {
       return {
         transform: `scale(${this.ratio / 100})`,
@@ -103,6 +135,10 @@ export default {
     }
   },
   methods: {
+    clickImg () {
+      this.open()
+      this.$emit('open', event)
+    },
     open () {
       this.show = true
       this.handleEvent(true)
@@ -112,6 +148,7 @@ export default {
       this.handleEvent(false)
       this.show = false
       this.resetData()
+      this.$emit('close')
     },
 
     resetData () {
@@ -122,8 +159,11 @@ export default {
       this.endPoint = {}
       this.boundary = {}
       this.env = ''
+      this.opacity = 0
     },
-
+    onload () {
+      this.$emit('onload')
+    },
     mousewheelEvent (add = true) {
       // FF doesn't recognize mousewheel as of FF3.x
       const _mousewheelEvent = /Firefox/i.test(navigator.userAgent) ? 'DOMMouseScroll' : 'mousewheel'
@@ -372,6 +412,7 @@ export default {
         this.initBoundary({wrapWidth, wrapHeight, width, height})
         this.x = (wrapWidth - width) / 2
         this.y = (wrapHeight - height) / 2
+        this.opacity = 1
       })
     },
     /**
@@ -433,6 +474,11 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+.img {
+  >img {
+    cursor: zoom-in;
+  }
+}
 .zoom-img-dialog {
   position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 999;
   width: 100%;
@@ -456,9 +502,11 @@ export default {
   width: 80%;
   margin: 0 auto 0;
   padding: 30px 20px 20px;
+  
   border-radius: 4px;
   background: #fff;
 }
+
 .close {
   display: block;
   position: absolute; right: 5px; top: 5px;
@@ -497,9 +545,10 @@ img {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #333;
   // pointer-events: stroke;
   > img {
+    min-width: 100px;
+    min-height: 100px;
     width: 80%;
     height: auto;
     transform-origin: center;
@@ -518,6 +567,7 @@ img {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex: 26px 0 0;
   margin-top: 20px;
 }
 .zoom-in {

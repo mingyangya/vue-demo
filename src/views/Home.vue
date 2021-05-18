@@ -1,43 +1,29 @@
 <template>
   <div class="home">
-    <button @click="show">图</button>
-    <ZoomImg ref='zoomImgEle' />
+    <h1>demo演示</h1>
+    <br>
+    <ul>
+      <li v-for="(menu, i) in menuList" :key="i"><a :href="menu.path">{{menu.name}}</a></li>
+    </ul>
   </div>
 </template>
 
 <script>
-import ZoomImg from '@/components/common/zoom-img/index'
 
 export default {
   name: 'Home',
   data () {
     return {
-    }
-  },
-  components: {
-    ZoomImg
-  },
-  created () {
-    this.$nextTick(() => {
-      // this.show2()
-    })
-  },
-  methods: {
-    show () {
-      this.$refs.zoomImgEle.open()
+      menuList: [{
+        name: '查看大图',
+        path: '/zoom-img'
+      }]
     }
   }
 }
 </script>
 <style lang="scss" scoped>
-button{
-
-  margin: 0 50px;
-  padding: 10px 30px;
-  cursor: pointer;
-}
-img {
-  width: 200px;
-  cursor: pointer;
+h1 {
+  font-size: 2em;
 }
 </style>
