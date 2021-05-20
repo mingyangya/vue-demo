@@ -174,12 +174,12 @@ export default {
       this.$emit('onload')
     },
     mousewheelEvent (add = true) {
-      // FF doesn't recognize mousewheel as of FF3.x
-      const _mousewheelEvent = /Firefox/i.test(navigator.userAgent) ? 'DOMMouseScroll' : 'mousewheel'
+      // 支持ie11+ 、edge、chorme , 不支持safari 、firefox
+      const _mousewheelEvent = 'mousewheel'
       add ? this.$refs.imgBoxEle.addEventListener(_mousewheelEvent, this.mouseWheel) : this.$refs.imgBoxEle.removeEventListener(_mousewheelEvent, this.mouseWheel)
     },
 
-    init() {
+    init () {
       this.$nextTick(() => {
         this.footerHeight = this.$refs.modalFooterEle.clientHeight || 0
         this.headerHeight = this.$refs.modalHeaderEle.clientHeight || 0
@@ -231,7 +231,7 @@ export default {
         // 监听滚轮事件
         this.mousewheelEvent(add)
 
-       
+
       })
     },
 
