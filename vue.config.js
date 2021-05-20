@@ -17,5 +17,26 @@ module.exports = {
     config.plugins.delete('preload')
     config.plugins.delete('prefetch')
 
+  },
+
+  pluginOptions: {
+    'style-resources-loader': {
+      preProcessor: 'scss',
+      patterns: [
+        path.resolve(__dirname, './src/assets/css/config.scss')
+      ]
+    }
+  },
+  devServer: {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+    port: 8888,
+    // public: 'zhiji.geekbang.org',
+    overlay: {
+      warnings: false,
+      errors: true
+    },
+    disableHostCheck: true
   }
 }
