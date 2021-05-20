@@ -234,19 +234,13 @@ export default {
 
       })
     },
-
+    // @see https://developer.mozilla.org/zh-CN/docs/Web/API/Element/mousewheel_event
     mouseWheel (e) {
       this.pauseEvent(e)
-      // todo 待测试 Firefox 、Safari
-      // @see https://developer.mozilla.org/zh-CN/docs/Web/API/Element/mousewheel_event
       this.throttle(() => {
-        console.log(e)
-        console.log({delta: e.deltaY, wheelDelta: e.wheelDelta})
         const wheelDelta = e.wheelDelta ? -e.wheelDelta : e.deltaY * 1.2
         if (wheelDelta % 120 === 0) {
           wheelDelta < 0 ? this.zoomIn() : this.zoomOut()
-        } else {
-          // console.log(delta, e)
         }
       })()
     },
