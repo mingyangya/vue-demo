@@ -27,12 +27,12 @@ yarn server
 
 ## 提问
 
-- 直接在 [github issues](https://github.com/haochn/easy-function/issues) 提交问题
+- 直接在 [github issues](https://github.com/haochn/vue-demo/issues) 提交问题
 
 每次升级版本修复的问题记录在[这里](./ISSUE.md)
 
 ## 关于作者
 
-- 关注作者的博客 
+- 关注作者的博客
 - 学习作者的教程
 
