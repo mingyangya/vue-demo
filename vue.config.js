@@ -32,7 +32,6 @@ module.exports = {
       'Access-Control-Allow-Origin': '*',
     },
     port: 8888,
-    // public: 'zhiji.geekbang.org',
     overlay: {
       warnings: false,
       errors: true

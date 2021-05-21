@@ -1,24 +1,38 @@
-# demo
+# vue-demo
 
-## Project setup
+## 介绍
+
+一些demo。
+
+## 开始
+
 ```
 yarn install
 ```
 
-### Compiles and hot-reloads for development
+## 运行
+
 ```
-yarn serve
+yarn server
 ```
 
-### Compiles and minifies for production
-```
-yarn build
-```
+## 查看效果
 
-### Lints and fixes files
-```
-yarn lint
-```
+浏览器输入：http://localhost:8888
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## demo列表
+  + zoom-img （查看大图）
+
+    [更多详细](./LIST.md)
+
+## 提问
+
+- 直接在 [github issues](https://github.com/haochn/easy-function/issues) 提交问题
+
+每次升级版本修复的问题记录在[这里](./ISSUE.md)
+
+## 关于作者
+
+- 关注作者的博客 
+- 学习作者的教程
+
