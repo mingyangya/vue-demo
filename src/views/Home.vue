@@ -17,6 +17,9 @@ export default {
       menuList: [{
         name: '查看大图',
         path: '/zoom-img'
+      }, {
+        name: '弹幕',
+        path: '/barrage'
       }]
     }
   }

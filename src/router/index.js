@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import ZoomImg from '../views/zoom-img/index.vue'
-
+import Barrage from '../views/barrage/index.vue'
 Vue.use(VueRouter)
 
 const routes = [
@@ -15,6 +15,11 @@ const routes = [
     path: '/zoom-img',
     name: 'ZoomImg',
     component: ZoomImg,
+  },
+  {
+    path: '/barrage',
+    name: 'Barrage',
+    component: Barrage,
   }
 ]
 
