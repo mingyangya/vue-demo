@@ -9,6 +9,8 @@
 <script>
 import Layout from '@/components/layout/index'
 import Barrage from '@/components/barrage/index'
+// import Barrage from '@/components/barrage/barrage'
+
 // import Mock from 'mockjs'
 export default {
   data () {
@@ -39,5 +41,7 @@ button{
   width: 200px;
   cursor: pointer;
 }
-
+.barrage {
+  margin: 150px 0 0 30px;
+}
 </style>

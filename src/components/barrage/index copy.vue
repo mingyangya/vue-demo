@@ -1,24 +1,22 @@
 <template>
 <div class="box">
   <div class="barrage-area">
-    <template v-for="(item, i) in barrageList">
-      <Barrage @clear="clear" :show="item.show"  :key="i" :start-time="item.start"/>
-    </template>
+    <ul class="barrage-list">
+      <li v-for="(item, i) in barrageList" :key="i">
+        {{item.content}}
+      </li>
+    </ul>
   </div>
-
-  <button @click="send">发送弹幕</button>
 </div>
 </template>
 
 <script>
-import Barrage from './barrage'
 export default {
   data () {
     return {
       timer: null,
       t: 300,
       index: 0,
-      start: 1000,
       barrageList: [],
       list: [{
         counts: 3,
@@ -58,25 +56,26 @@ export default {
   computed: {
 
   },
-  components: {
-    Barrage
-  },
   mounted () {
     this.initList()
   },
   methods: {
     initList () {
-      this.barrageList = this.list.map((item, i) => Object.assign({}, item, {show: true, start: 0 + i * this.start}))
-      console.log(this.barrageList)
+      this.barrageList = this.list.slice(0, 4)
+      this.index = 3
+      this.moveBarrage()
     },
-
-    send () {
-      const start = this.barrageList.length * this.start
-      this.barrageList.push({show: true, content: 'HHA', start})
-    },
-
-    clear (index) {
-      this.barrageList.splice(index, 1, {show: false})
+    moveBarrage (number = 1, t = 1000) {
+      if (this.index > this.list.length) clearTimeout(this.timer)
+      const index =  this.index + number
+      console.log('index:', index)
+      this.timer = setTimeout(() => {
+        if (this.barrageList.length === 0) clearTimeout(this.timer)
+        this.barrageList.splice(0, number, ...this.list.slice(index, index + number))
+        console.log(this.barrageList)
+        this.index = index
+        this.moveBarrage()
+      }, t)
     }
   }
 }
@@ -86,15 +85,14 @@ export default {
 .box {
   position: relative;
   height: 190px;
- 
+  background: #ccc;
 }
 .barrage-area {
   box-sizing: border-box;
-  // position: absolute; left: 13px; bottom: 12px; z-index: 2;
-  height: 200px;
-  width: 500px;
-  // overflow: hidden;
-  background: #ccc;
+  position: absolute; left: 13px; bottom: 12px; z-index: 2;
+  height: 173px;
+  padding: 28px 0 0 0;
+  overflow: hidden;
   .barrage-shadow {
     box-sizing: border-box;
     position: absolute; left: 0; top: 0;
@@ -145,8 +143,4 @@ export default {
   }
 }
 
-button {
-  padding: 20px 10px;
-  margin: 50px;
-}
 </style>
