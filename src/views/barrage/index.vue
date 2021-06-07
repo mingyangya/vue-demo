@@ -1,7 +1,7 @@
 <template>
 <Layout>
   <div class="barrage">
-    <Barrage ref='barrageEle'/>
+    <Barrage ref='barrageEle' :list="list"/>
   </div>
 </Layout>
 </template>
@@ -15,6 +15,39 @@ import Barrage from '@/components/barrage/index'
 export default {
   data () {
     return  {
+      list: [{
+        counts: 3,
+        type: 1,
+        content: '这个月一定要坚持！'
+      }, {
+        counts: 1,
+        type: 1,
+        content: '参加新赛季啦'
+      }, {
+        counts: 3,
+        type: 2,
+        content: '冲啊！'
+      }, {
+        counts: 6,
+        type: 0,
+        content: '我要拿奖励'
+      }, {
+        counts: 3,
+        type: 1,
+        content: '这个月一定要坚持！'
+      }, {
+        counts: 1,
+        type: 1,
+        content: '参加新赛季啦'
+      }, {
+        counts: 3,
+        type: 2,
+        content: '冲啊！'
+      }, {
+        counts: 9,
+        type: 0,
+        content: '我要拿奖励'
+      }]
     }
   },
   components: {

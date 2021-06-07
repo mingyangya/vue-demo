@@ -1,5 +1,5 @@
 <template>
-<div class="barrage-box-item" ref="ele" :style="listStyle" v-if="show">{{content}}</div>
+  <div class="barrage-box-item" ref="ele" :style="listStyle" v-if="show">{{content}}</div>
 </template>
 
 <script>

@@ -1,115 +1,125 @@
 <template>
-<div class="box">
-  <div class="barrage-area">
-    <template v-for="(item, i) in barrageList">
-      <Barrage @clear="clear" :show="item.show"  :key="i" :start-time="item.start"/>
-    </template>
-  </div>
+  <div class="barrage-area" :style="{'height': areaH +'px'}">
+    <ul :class="['barrage-list', {'init': init, 'animate-translate-y': hasAnimate}]" :style="ulStyle">
+      <li v-for="(item, i) in barrageList" :key="i" ref="itemEle">
+        {{item.content}}
+      </li>
+    </ul>
 
-  <button @click="send">发送弹幕</button>
-</div>
+    <ul :class="['barrage-list', {'init': init, 'animate-translate-y': hasAnimate}]" :style="ulStyle">
+      <li v-for="(item, i) in barrageList" :key="i">
+        {{item.content}}
+      </li>
+    </ul>
+
+  </div>
 </template>
 
 <script>
-import Barrage from './barrage'
 export default {
   data () {
     return {
       timer: null,
-      t: 300,
+      t: 1000,
       index: 0,
-      start: 1000,
       barrageList: [],
-      list: [{
-        counts: 3,
-        type: 1,
-        content: '这个月一定要坚持！'
-      }, {
-        counts: 1,
-        type: 1,
-        content: '参加新赛季啦'
-      }, {
-        counts: 3,
-        type: 2,
-        content: '冲啊！'
-      }, {
-        counts: 0,
-        type: 0,
-        content: '我要拿奖励'
-      }, {
-        counts: 3,
-        type: 1,
-        content: '这个月一定要坚持！'
-      }, {
-        counts: 1,
-        type: 1,
-        content: '参加新赛季啦'
-      }, {
-        counts: 3,
-        type: 2,
-        content: '冲啊！'
-      }, {
-        counts: 0,
-        type: 0,
-        content: '我要拿奖励'
-      }]
+      areaH: 0,
+      itemH: 0,
+      init: false,
+      hasAnimate: true,
+    }
+  },
+  props: {
+    list: Array,
+    showNumber: {
+      type: Number,
+      default: 4
     }
   },
   computed: {
-
+    ulStyle () {
+      console.log(this.barrageList.length, this.showNumber * this.itemH)
+      const endY = (this.barrageList.length - this.showNumber) * this.itemH
+      return {
+        top: this.init ?  -endY + 'px' : '100%',
+        transform: `translateY(${- this.index * this.itemH}px)`
+      }
+    }
   },
-  components: {
-    Barrage
+  created () {
+    this.initList() 
   },
   mounted () {
-    this.initList()
+    this.initAnimate()
+  },
+  beforeDestroy () {
+    this.reset()
   },
   methods: {
     initList () {
-      this.barrageList = this.list.map((item, i) => Object.assign({}, item, {show: true, start: 0 + i * this.start}))
-      console.log(this.barrageList)
+      this.barrageList = [...this.list]
     },
 
-    send () {
-      const start = this.barrageList.length * this.start
-      this.barrageList.push({show: true, content: 'HHA', start})
+    initAnimate () {
+      this.$nextTick(() => { 
+        this.getHeight()
+        this.timer = setInterval(this.moveBarrage, this.t)
+      })
+    },
+    getHeight () {
+      this.itemH = this.$refs.itemEle[0].clientHeight
+      this.areaH = this.itemH * this.showNumber
     },
 
-    clear (index) {
-      this.barrageList.splice(index, 1, {show: false})
+    moveBarrage () {
+     
+      if (this.index <= this.barrageList.length - 1) {
+        console.log(this.index)
+        this.index ++;
+      } else {
+        this.hasAnimate = false
+        this.reset()
+        this.initList()
+        // this.moveBarrage ()
+        setTimeout(()=> {
+          this.hasAnimate = true
+        }, 300)
+        this.initAnimate()
+       
+      } 
+    },
+
+    reset () {
+      this.init = true
+      this.index = 0
+      clearInterval(this.timer)
     }
   }
 }
 </script>
 
 <style scoped lang="scss">
-.box {
-  position: relative;
-  height: 190px;
- 
-}
+
 .barrage-area {
   box-sizing: border-box;
-  // position: absolute; left: 13px; bottom: 12px; z-index: 2;
-  height: 200px;
-  width: 500px;
-  // overflow: hidden;
-  background: #ccc;
-  .barrage-shadow {
-    box-sizing: border-box;
-    position: absolute; left: 0; top: 0;
-    height: 28px;
-    background: rgba(252, 130, 44, .6);
-  }
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 190px;
+  padding: 0;
+  background: #999;
+  overflow: hidden;
 }
 
 .barrage-list {
-  display: flex;
-  flex-direction: column-reverse;
+  position: relative;
+  &.animate-translate-y{
+    transition: transform .3s ease;
+  }
   > li {
     box-sizing: border-box;
     height: 28px;
-    margin-top: 8px;
+    padding-top: 8px;
     border-radius: 14px;
     line-height: 28px;
     font-size: 14px;
@@ -145,8 +155,4 @@ export default {
   }
 }
 
-button {
-  padding: 20px 10px;
-  margin: 50px;
-}
 </style>
