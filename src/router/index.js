@@ -2,6 +2,8 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import ZoomImg from '../views/zoom-img/index.vue'
+import TextStroke from '../views/text-stroke/Index.vue'
+
 
 Vue.use(VueRouter)
 
@@ -15,6 +17,11 @@ const routes = [
     path: '/zoom-img',
     name: 'ZoomImg',
     component: ZoomImg,
+  },
+  {
+    path: '/text-stroke',
+    name: TextStroke,
+    component: TextStroke,
   }
 ]
 

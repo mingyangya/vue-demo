@@ -17,6 +17,9 @@ export default {
       menuList: [{
         name: '查看大图',
         path: '/zoom-img'
+      }, {
+        name: '文字描边',
+        path: '/text-stroke'
       }]
     }
   }
