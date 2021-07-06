@@ -8640,6 +8640,11 @@ vue-template-es2015-compiler@^1.9.0:
   resolved "https://registry.npmjs.org/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz#1ee3bc9a16ecbf5118be334bb15f9c46f82f5825"
   integrity sha512-4gDntzrifFnCEvyoO8PqyJDmguXgVPxKiIxrBKjIowvL9l+N66196+72XVYR8BBf1Uv1Fgt3bGevJ+sEmxfZzw==
 
+vue-time-line-npm@^0.0.2:
+  version "0.0.2"
+  resolved "http://npmregistry.geekbang.org/vue-time-line-npm/-/vue-time-line-npm-0.0.2.tgz#100e4a0a00c90661978695a62b1180a82a5d7ac3"
+  integrity sha512-Im29eeDOU1RhfuPW5rZvJWuCDq00oIZJCR8NG7I+R6uAEjzBIB2mekIjiQ9cj/IS8+Y5ULiarsClTCJ05LG0/A==
+
 vue@^2.6.11:
   version "2.6.12"
   resolved "https://registry.npmjs.org/vue/-/vue-2.6.12.tgz#f5ebd4fa6bd2869403e29a896aed4904456c9123"

@@ -6,6 +6,10 @@ import store from './store'
 // const VConsole = require('vconsole')
 // const vConsole = new VConsole()
 
+import TimeLine from 'vue-time-line-npm'
+
+Vue.use(TimeLine, /* { default options with global component } */)
+
 Vue.config.productionTip = false
 
 new Vue({
