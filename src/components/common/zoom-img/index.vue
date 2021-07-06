@@ -313,18 +313,16 @@ export default {
     },
 
     touchstart (e) {
-      console.log('touchstart', e.touches)
       this.pauseEvent(e)
       const touches = e.touches
-      // this.isTouch = true
+      this.isTouch = true
 
       this.finger = touches.length
       this.startPoints = [...this.getTouchsData(touches)]
 
       if (this.singleFinger) {
-        this.isTouch = true
+        // this.isTouch = true
         this.startPoint = Object.assign({}, this.startPoints[0])
-        console.log('start', this.startPoint.x, this.startPoint.y)
       } else {
         // this.isTouch = false
         // this.startPoint = Object.assign({}, this.startPoints[0])
@@ -332,7 +330,6 @@ export default {
     },
 
     touchmove (e) {
-      // console.log('touchmove', e)
       this.pauseEvent(e)
       if (this.isTouch) {
         this.throttle(() => {
@@ -376,8 +373,6 @@ export default {
           } else {
             const { offsetX, offsetY, id } = this.getOffset()
             // 处理缩放
-            
-
             console.log({x: this.x, y: this.y})
           }
 
@@ -449,8 +444,8 @@ export default {
       start.forEach(startItem => {
         const temp = end.find(endItem => endItem.id === startItem.id)
         if(temp) {
-          distanceX.push({id: startItem.id, distance: startItem.x - temp.x })
-          distanceY.push({id: startItem.id, distance: startItem.y - temp.y})
+          distanceX.push({id: startItem.id, distance: startItem.x - temp.x, point: { start: startItem.x, end: temp.x }})
+          distanceY.push({id: startItem.id, distance: startItem.y - temp.y, ypoint: { start: startItem.y, end: temp.y }})
         }
       })
       return {
@@ -489,6 +484,42 @@ export default {
 
     },
 
+    /**
+     * 从两组数据中，筛选出，差值（x偏移量|y偏移量）最大的一组
+     */
+    filterItem (distanceX, distanceY) {
+      const _distanceX = [...distanceX.map(item => item.distance)]
+      const _distanceY = [...distanceY.map(item => item.distance)]
+      const maxDistanceX = Math.max(_distanceX)
+      const maxDistanceY = Math.max(_distanceY)
+      const minDistanceX = Math.min(_distanceX)
+      const minDistanceY = Math.min(_distanceY)
+
+      // 筛选出distanceX中所有最大的项, 
+      const idMaxX = distanceX.filter(item => item.distance === maxDistanceX).map(item => item.id)
+      // 筛选出distanceY中所有最大的项, 
+      const idMaxY = distanceX.filter(item => item.distance === maxDistanceY).map(item => item.id)
+
+      // 筛选出distanceX中所有最小的项, 
+      const idMinX = distanceX.filter(item => item.distance === minDistanceX).map(item => item.id)
+      // 筛选出distanceY中所有最小的项, 
+      const idMinY = distanceX.filter(item => item.distance === minDistanceY).map(item => item.id)
+      
+      let id
+      if (idMaxX.length > idMaxY.length ) {
+        const idArr = idMaxX.filter(itemX => idMaxY.find(itemY => itemY === itemX))
+        id = Math.max(idArr)
+      } else {
+        const idArr = idMaxY.filter(itemY => idMaxX.find(itemX => itemY === itemX))
+        id = Math.max(idArr)
+      }
+      return {
+        id,
+        minDis: maxDistanceX
+      }
+
+    },
+
     getOffset () {
       const { distanceX, distanceY } = this.getDistance(this.startPoints, this.endPoints)
 
@@ -496,9 +527,7 @@ export default {
       const maxDistanceX = Math.max(...distanceX.map(item => item.distance))
       const maxDistanceY = Math.max(...distanceY.map(item => item.distance))
 
-
       // 处理缩放
-
 
       // 筛选出distanceX中所有最大的项, 
       const idX = distanceX.filter(item => item.distance === maxDistanceX).map(item => item.id)
