@@ -40,11 +40,6 @@
   </div> 
 </template>
 <script>
-/***
- * 移动端： 
- *    单指： 上下左右移动位置
- *    多指（两指）： 缩放，和放大以及旋转，
- */
 export default {
   data () {
     return {
@@ -63,11 +58,8 @@ export default {
       isTouch: false,
       startPoint: {},
       endPoint: {},
-      finger: 1, // 是否多指[<=1] 否 ,[n]n指
-      startPoints: [],
-      endPoints: [],
-      x: 0, // x坐标
-      y: 0, // y坐标
+      x: 0,
+      y: 0,
       boundary: {}, // 边界
       env: '',
       opacity: 0,
@@ -106,10 +98,6 @@ export default {
     }
   },
   computed: {
-    singleFinger () {
-      console.log('singleFinger', this.finger <= 1)
-      return this.finger <= 1
-    },
     style () {
       let style = {}
       const w = this.width
@@ -313,107 +301,35 @@ export default {
     },
 
     touchstart (e) {
-      console.log('touchstart', e.touches)
+      console.log('touchstart', e)
       this.pauseEvent(e)
       const touches = e.touches
-      // this.isTouch = true
-
-      this.finger = touches.length
-      this.startPoints = [...this.getTouchsData(touches)]
-
-      if (this.singleFinger) {
-        this.isTouch = true
-        this.startPoint = Object.assign({}, this.startPoints[0])
-        console.log('start', this.startPoint.x, this.startPoint.y)
-      } else {
-        // this.isTouch = false
-        // this.startPoint = Object.assign({}, this.startPoints[0])
-      }
+      this.isTouch = true
+      this.startPoint = {x: touches[0].clientX, y: touches[0].clientY}
     },
 
     touchmove (e) {
-      // console.log('touchmove', e)
+      console.log('touchmove', e)
       this.pauseEvent(e)
       if (this.isTouch) {
         this.throttle(() => {
           const touches = e.touches
-
-          this.finger = touches.length
-          this.endPoints = [...this.getTouchsData(touches)]
-
-          if (this.singleFinger) {
-            this.endPoint = Object.assign({}, this.endPoints[0])
-
-            const dx = (this.startPoint.x - this.endPoint.x)
-            const dy = (this.startPoint.y - this.endPoint.y)
-            const offsetX = this.x - dx
-            const offsetY = this.y - dy
-
-            // x 坐标
-            if (offsetX > this.boundary.right && offsetX > 0) {
-              // 右边界
-              this.x = this.boundary.right
-            } else if (offsetX <= this.boundary.left && offsetX < 0) {
-              // 左边界
-              this.x = this.boundary.left
-            } else {
-              this.startPoint.x = this.endPoint.x
-              this.x = offsetX
-            }
-
-            // y 坐标
-            if (offsetY > this.boundary.bottom) {
-              // 下边界
-              this.y = this.boundary.bottom
-            } else if (offsetY <= this.boundary.top) {
-              // 上边界
-              this.y = this.boundary.top
-            }else {
-              this.startPoint.y = this.endPoint.y
-              this.y = offsetY
-            }
-
-          } else {
-            const { offsetX, offsetY, id } = this.getOffset()
-            // 处理缩放
-            
-
-            console.log({x: this.x, y: this.y})
-          }
-
-        })()
-      }
-    },
-
-    handleMove () {
-
-    },
-
-    touchend (e) {
-      this.pauseEvent(e)
-      if (this.isTouch) {
-        const touches = e.changedTouches
-
-        this.finger = touches.length
-        this.endPoints = [...this.getTouchsData(touches)]
-
-        if (this.singleFinger) {
-          this.endPoint = Object.assign({}, this.endPoints[0])
-
+          this.endPoint = {x: touches[0].clientX, y: touches[0].clientY}
+          
           const dx = (this.startPoint.x - this.endPoint.x)
           const dy = (this.startPoint.y - this.endPoint.y)
-
           const offsetX = this.x - dx
           const offsetY = this.y - dy
 
           // x 坐标
-          if (offsetX > this.boundary.right) {
+          if (offsetX > this.boundary.right && offsetX > 0) {
             // 右边界
             this.x = this.boundary.right
-          } else if (offsetX <= this.boundary.left) {
+          } else if (offsetX <= this.boundary.left && offsetX < 0) {
             // 左边界
             this.x = this.boundary.left
           } else {
+            this.startPoint.x = this.endPoint.x
             this.x = offsetX
           }
 
@@ -422,107 +338,53 @@ export default {
             // 下边界
             this.y = this.boundary.bottom
           } else if (offsetY <= this.boundary.top) {
-            // 上边界
+             // 上边界
             this.y = this.boundary.top
-          } else {
+          }else {
+            this.startPoint.y = this.endPoint.y
             this.y = offsetY
           }
 
+        })()
+      }
+    },
+
+    touchend (e) {
+      this.pauseEvent(e)
+      if (this.isTouch) {
+        const touches = e.changedTouches
+
+        this.endPoint = {x: touches[0].clientX, y: touches[0].clientY}
+        const dx = (this.startPoint.x - this.endPoint.x)
+        const dy = (this.startPoint.y - this.endPoint.y)
+
+        const offsetX = this.x - dx
+        const offsetY = this.y - dy
+
+        // x 坐标
+        if (offsetX > this.boundary.right) {
+          // 右边界
+          this.x = this.boundary.right
+        } else if (offsetX <= this.boundary.left) {
+          // 左边界
+          this.x = this.boundary.left
         } else {
-          this.endPoint = Object.assign({}, this.endPoints[0])
+          this.x = offsetX
+        }
+
+        // y 坐标
+        if (offsetY > this.boundary.bottom) {
+          // 下边界
+          this.y = this.boundary.bottom
+        } else if (offsetY <= this.boundary.top) {
+          // 上边界
+          this.y = this.boundary.top
+        } else {
+          this.y = offsetY
         }
 
         this.isTouch = false
       }
-    },
-
-    /**
-     * 计算偏移量
-     * @param {array｜object} start 开始点坐标
-     * @param {array|object} end 结束点坐标
-     */
-    getDistance (start, end) {
-      let distanceX = []
-      let distanceY = []
-      start = Array.isArray(start) ? start : [start]
-      end = Array.isArray(end) ? end : [end]
-      start.forEach(startItem => {
-        const temp = end.find(endItem => endItem.id === startItem.id)
-        if(temp) {
-          distanceX.push({id: startItem.id, distance: startItem.x - temp.x })
-          distanceY.push({id: startItem.id, distance: startItem.y - temp.y})
-        }
-      })
-      return {
-        distanceX,
-        distanceY
-      }
-    },
-
-    /**
-     * 处理缩放，最少两指
-     * 缩放： 偏移量一正一负，两点坐标距离变小 
-     * 放大： 偏移量一正一负，两点坐标距离变大 
-     * 变化倍数： 两点坐标距离 / [x｜y] * 100%
-     */
-    handleScale (distanceX, distanceY) {
-      const _distanceX = [...distanceX.map(item => item.distance)]
-      const _distanceY = [...distanceY.map(item => item.distance)]
-      const maxDistanceX = Math.max(_distanceX)
-      const maxDistanceY = Math.max(_distanceY)
-      const minDistanceX = Math.min(_distanceX)
-      const minDistanceY = Math.min(_distanceY)
-
-      // 筛选出distanceX中所有最大的项, 
-      const idMaxX = distanceX.filter(item => item.distance === maxDistanceX)
-      // 筛选出distanceY中所有最大的项, 
-      const idMaxY = distanceX.filter(item => item.distance === maxDistanceY).map(item => item.id)
-
-      // 筛选出distanceX中所有最小的项, 
-      const idMinX = distanceX.filter(item => item.distance === minDistanceX).map(item => item.id)
-      // 筛选出distanceY中所有最小的项, 
-      const idMinY = distanceX.filter(item => item.distance === minDistanceY).map(item => item.id)
-
-      // if(maxDistanceX >= 0 && minDistanceX <= 0) {
-      //   const dx = 
-      // }
-
-    },
-
-    getOffset () {
-      const { distanceX, distanceY } = this.getDistance(this.startPoints, this.endPoints)
-
-      console.log('distanceX, distanceY', distanceX, distanceY)
-      const maxDistanceX = Math.max(...distanceX.map(item => item.distance))
-      const maxDistanceY = Math.max(...distanceY.map(item => item.distance))
-
-
-      // 处理缩放
-
-
-      // 筛选出distanceX中所有最大的项, 
-      const idX = distanceX.filter(item => item.distance === maxDistanceX).map(item => item.id)
-      // 筛选出distanceY中所有最大的项, 
-      const idY = distanceX.filter(item => item.distance === maxDistanceY).map(item => item.id)
-
-      // 筛选出偏移最大的点
-      const id = idX.length > idY.length ? idX.find(itemX => idY.find(itemY => itemY === itemX)) : idY.find(itemX => idX.find(itemY => itemY === itemX)) 
-
-      const offsetX = this.x - maxDistanceX
-      const offsetY = this.y - maxDistanceY
-      return {
-        offsetX,
-        offsetY,
-        id
-      }
-    },
-
-    getTouchsData (touchList) {
-      let positionList = []
-      touchList.forEach(item => {
-        positionList.push({x: item.clientX, y: item.clientY, id: item.identifier})
-      })
-      return positionList
     },
 
     setPosition () {
