@@ -4,6 +4,7 @@
   "description": "vue demos",
   "author": "Ming Yang",
   "private": true,
+  "homepage":"https://minyangya.github.io/vue-demo",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
