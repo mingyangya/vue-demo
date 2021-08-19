@@ -1,19 +1,23 @@
 <template>
 <Layout>
   <div class="zoom-img">
-    <ZoomImg ref='zoomImgEle' class="image" :src="src" @open="open" @close="close" title="点击查看大图"/>
+    <img :src="src" alt="" class="image" @click="preview(src)">
+    <ZoomImg ref='imgModel' :img="src" @open="open" @close="close" title="点击查看大图"/>
+    <!-- <ZoomImg ref='zoomImgEle' class="image" :src="src" @open="open" @close="close" title="点击查看大图"/> -->
   </div>
 </Layout>
 </template>
 
 <script>
 import Layout from '@/components/layout/index'
-import ZoomImg from '@/components/common/zoom-img/index'
+// import ZoomImg from '@/components/common/zoom-img/index'
+import ZoomImg from '@/components/common/zoom-img/Img.vue'
 // import Mock from 'mockjs'
 export default {
   data () {
     return  {
-      src: 'https://webpack.docschina.org/icon-square-small.85ba630cf0c5f29ae3e3.svg'
+      src: 'https://avatars.githubusercontent.com/u/20461557?v=4',
+      imgUrl: ''
     }
   },
   components: {
@@ -21,6 +25,13 @@ export default {
     ZoomImg
   },
   methods: {
+    preview (url) {
+      this.imgUrl = url
+      this.$refs.imgModel.open()
+      // this.$nextTick(() => {
+      //   this.$refs.imgModel.open()
+      // })
+    },
     open (e) {
       console.log('图片地址', e)
     },
