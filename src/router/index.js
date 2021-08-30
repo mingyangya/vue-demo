@@ -15,6 +15,11 @@ const routes = [
     path: '/zoom-img',
     name: 'ZoomImg',
     component: ZoomImg,
+  },
+  {
+    path: '/step-line',
+    name: 'StepLine',
+    component: () => import(/* webpackChunkName: "stepLine" */ '../views/step-line/Index.vue')
   }
 ]
 

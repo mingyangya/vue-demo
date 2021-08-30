@@ -1,0 +1,8 @@
+@mixin themeBlue($bg: #0992F7) {
+  $background: $bg;
+  $boxShadow: 0px 0px 15px 0px rgba(129, 181, 192, 0.32);
+}
+
+@mixin test($bg: #0992F7) {
+  background-color: red;
+}

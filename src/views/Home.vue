@@ -3,21 +3,18 @@
     <h1>demo演示</h1>
     <br>
     <ul>
-      <li v-for="(menu, i) in menuList" :key="i"><a :href="menu.path">{{menu.name}}</a></li>
+      <li v-for="(menu, i) in menuList" :key="i"><a :href="'/' + menu.path">{{menu.name}}</a></li>
     </ul>
   </div>
 </template>
 
 <script>
-
+import Menu from '@config/menu.json'
 export default {
   name: 'Home',
   data () {
     return {
-      menuList: [{
-        name: '查看大图',
-        path: '/zoom-img'
-      }]
+      menuList: Menu
     }
   }
 }
