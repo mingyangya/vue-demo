@@ -110,6 +110,10 @@
             </template>
           </ul>
         </div>
+        <template v-if="this.$refs['extension-video-point']">
+          fsfsdf
+        </template>
+
         <!-- 画中画 -->
         <template v-if="pictureInPictureEnabled">
           <template v-if="isPictureInPicture">
@@ -191,6 +195,11 @@
         正在为您切换到 <span :class="$style.qualityName" player-quality-name>{{quality.name}}</span> , 请稍后...
       </div>
     </template>
+
+    <template v-for="(item, i) in extensionList" >
+      <component :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :ref="'extension-' + item.name" />
+    </template>
+
   </div>
 </template>
 
@@ -218,7 +227,8 @@ export default {
     showNext: {
       type: Boolean,
       default: false
-    }
+    },
+    extensions: Array
   },
   data () {
     return {
@@ -287,6 +297,15 @@ export default {
     // 网页全屏控制是否开启
     webFullScreenEnabled () {
       return this.config.enableWebFullScreen && !this.isMobile
+    },
+    // 扩展插件列表
+    extensionList () {
+      // 把this传递下去
+      return this.extensions && this.extensions.length ? this.extensions.map(item => Object.assign({}, item, {com: item.com, name: item.name || item.com.name, vm: this})) : []
+    },
+    showVideoPoint () {
+      console.log(this.$refs, this.$refs['extension-video-point'])
+      return !!this.$refs['extension-video-point']
     }
   },
   filters: {
@@ -480,6 +499,9 @@ export default {
         this.duration = this.player.duration
         this.durationTime = this.player.durationTime
         this.loadedPercentage = this.player.loadedPercentage
+
+        this.$emit('timeupdate', this.current)
+
         // 检查字幕 cues 对象是否存在，丢失的话重载字幕
         if (this.config && this.config.isEncrypt) {
           this.checkSubtitles()
@@ -1092,6 +1114,12 @@ export default {
     },
     hideOutlineTip () {
       this.$emit('toggleOutLineTip', false)
+    },
+
+    // 知识点
+    videoPointClick (time) {
+      this.seek(time)
+      this.$emit('video-point-click', time)
     }
   }
 }
