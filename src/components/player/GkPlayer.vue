@@ -110,6 +110,8 @@
             </template>
           </ul>
         </div>
+
+        <!-- 扩展功能 -->
         <template v-for="(itemJ, j) in extensionList">
           <div :class="[$style.extensionItem, 'extension-item-'+ itemJ.name]" @click.stop="clickExtenstionItem(itemJ)" :key="j">
               43453534
@@ -199,7 +201,13 @@
     </template>
 
     <template v-for="(item, i) in extensionList" >
-      <component :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name" v-if="!item.hidden"/>
+      <template v-if="item.name === 'video-point'">
+        <component :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name" v-if="!item.hidden"/>
+      </template>
+
+      <template v-else>
+        <component :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name" v-if="!item.hidden"/>
+      </template>
     </template>
 
   </div>
@@ -721,11 +729,15 @@ export default {
     },
     show () {
       this.isUserInActive = false
+      // 展示知识点
+      this.toggleVideoPoint(false)
       this.emit('showBottomBar')
     },
     hide () {
       this.isUserInActive = true
       this.isShowVolumeBar = false // 控制栏隐藏后，关闭音量控制条
+      // 展示知识点
+      this.toggleVideoPoint(true)
       this.emit('hideBottomBar')
     },
     hideBigPlayBtn () {
@@ -1121,14 +1133,17 @@ export default {
       console.log('click', item, i)
     },
 
-    toggleVideoPoint () {
-      const item = this.extensionList
-      this.toggleExtensionStatus(item)
+    toggleVideoPoint (status) {
+      const item = this.extensionList.find(item => item.name === 'video-point')
+      console.log('item:', item)
+      this.toggleExtensionStatus(item, status)
     },
 
-    toggleExtensionStatus (item) {
+    toggleExtensionStatus (item, status) {
       const index = this.extensionList.findIndex(extension => extension.name === item.name)
-      this.extensionList.slice(index, 1, {...item, hidden: !item.hidden})
+      console.log('sfdsfds', {...item, hidden: !item.hidden})
+      this.extensionList.splice(index, 1, {...item, hidden: status || !item.hidden})
+      console.log('ssss', this.extensionList)
     },
 
     videoPointClick (time) {
