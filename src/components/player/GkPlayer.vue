@@ -110,8 +110,10 @@
             </template>
           </ul>
         </div>
-        <template v-if="this.$refs['extension-video-point']">
-          fsfsdf
+        <template v-for="(itemJ, j) in extensionList">
+          <div :class="[$style.extensionItem, 'extension-item-'+ itemJ.name]" @click.stop="clickExtenstionItem(itemJ)" :key="j">
+              43453534
+          </div>
         </template>
 
         <!-- 画中画 -->
@@ -197,7 +199,7 @@
     </template>
 
     <template v-for="(item, i) in extensionList" >
-      <component :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :ref="'extension-' + item.name" />
+      <component :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name" v-if="!item.hidden"/>
     </template>
 
   </div>
@@ -278,7 +280,8 @@ export default {
       isMobile: utils.isMobile,
       subtitleActiveIndex: 0,
       subtitle: '', // 字幕
-      points: [] // 打点信息
+      points: [], // 打点信息
+      showVideoPoint: true
     }
   },
   computed: {
@@ -301,11 +304,8 @@ export default {
     // 扩展插件列表
     extensionList () {
       // 把this传递下去
-      return this.extensions && this.extensions.length ? this.extensions.map(item => Object.assign({}, item, {com: item.com, name: item.name || item.com.name, vm: this})) : []
-    },
-    showVideoPoint () {
-      console.log(this.$refs, this.$refs['extension-video-point'])
-      return !!this.$refs['extension-video-point']
+      console.log(this.extensions[0], this.extensions[0].com, this.extensions[0].com.options)
+      return this.extensions && this.extensions.length ? this.extensions.map(item => Object.assign({}, item, {com: item.com, name: item.name, vm: this, hidden: false})) : []
     }
   },
   filters: {
@@ -1116,7 +1116,21 @@ export default {
       this.$emit('toggleOutLineTip', false)
     },
 
-    // 知识点
+    // 扩展
+    clickExtenstionItem (item, i) {
+      console.log('click', item, i)
+    },
+
+    toggleVideoPoint () {
+      const item = this.extensionList
+      this.toggleExtensionStatus(item)
+    },
+
+    toggleExtensionStatus (item) {
+      const index = this.extensionList.findIndex(extension => extension.name === item.name)
+      this.extensionList.slice(index, 1, {...item, hidden: !item.hidden})
+    },
+
     videoPointClick (time) {
       this.seek(time)
       this.$emit('video-point-click', time)
@@ -1596,6 +1610,10 @@ export default {
 // 字幕描边（底层）
 .subtitleStroke
   -webkit-text-stroke 3px #000
+
+// 扩展
+.extensionItem
+  cursor pointer
 
 // 1. normal: PC 通常样式
 .subtitle

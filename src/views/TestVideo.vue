@@ -5,8 +5,10 @@
 </template>
 
 <script>
-import VideoPoint from '../components/player/components/VideoPoint.vue'
+
 import Player from '../components/player/GkPlayer.vue'
+import VideoPoint from '../components/player/components/VideoPoint.vue'
+import Pop from '../components/player/components/Pop.vue'
 export default {
   data () {
     return {
@@ -18,7 +20,18 @@ export default {
   },
   computed: {
     extensions () {
-      return [{ com: VideoPoint, name: 'video-point'}]
+      return [{ 
+        com: VideoPoint, 
+        name: 'video-point', 
+        customEvent: { 
+          clickPrev: this.clickPrev,
+          clickNext: this.clickNext,
+          clickItem: this.clickItem
+        } 
+      }, 
+      { 
+        com: Pop
+      }]
     }
   },
   created () {
@@ -89,6 +102,17 @@ export default {
     videoPointClick () {
       // 
       console.log('点击知识点的回调')
+    },
+
+    clickPrev () {
+      console.log('外click prev')
+    },
+
+    clickNext () {
+      console.log('外click next')
+    },
+    clickItem () {
+      console.log('外click item')
     }
   }
 }
