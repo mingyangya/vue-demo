@@ -2,14 +2,12 @@
   <div class="test-vue">
     <Video :video-point-element="VideoPoint" @video-point-click="videoPointClick" />
     <!-- <Video /> -->
-    <!-- {{utils.foo()}} -->
   </div>
 </template>
 
 <script>
 import VideoPoint from '../components/video/VideoPoint'
 import Video from '../components/video/Index.vue'
-import utils from './utils'
 export default {
   data () {
     return {
@@ -23,10 +21,6 @@ export default {
     VideoPoint () {
       return VideoPoint
     }
-  },
-  mounted ( ) {
-    let a = utils.foo()
-    console.log(a)
   },
   methods: {
     videoPointClick () {

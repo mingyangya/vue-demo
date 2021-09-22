@@ -2,7 +2,7 @@
   <div
     :class="[$style.wrap, {[$style.userInActive]: isUserInActive}, {[$style.full]: isWebFullScreen}]"
     ref="playerWrap"
-    @mousemove="mouseMoveHandler"
+    @mouseenter="mouseMoveHandler"
     @click="videoClick">
     <div :class="$style.videoWrap" ref="videoWrap">
       <template v-if="options">
@@ -114,7 +114,21 @@
         <!-- 扩展功能 -->
         <template v-for="(itemJ, j) in extensionList">
           <div :class="[$style.extensionItem, 'extension-item-'+ itemJ.name]" @click.stop="clickExtenstionItem(itemJ)" :key="j">
-              43453534
+            <template v-if="itemJ.name === 'video-point'">
+              <!-- 视频点 -->
+              <template v-if="showVideoPoint">
+                <div :class="['gkplayer-iconfont', $style.icon, $style.videoPointOnBtn]" video-point-on @click.stop="toggleVideoPoint(false)">
+                  <!-- <div :class="$style.tooltips">退出画中画</div> -->
+                </div>
+              </template>
+              <template v-else>
+                <div :class="['gkplayer-iconfont', $style.icon, $style.videoPointOffBtn]" video-point-off @click.stop="toggleVideoPoint(true)">
+                  <!-- <div :class="$style.tooltips">开启画中画</div> -->
+                </div>
+              </template>
+            </template>
+
+            <template v-else></template>
           </div>
         </template>
 
@@ -202,11 +216,11 @@
 
     <template v-for="(item, i) in extensionList" >
       <template v-if="item.name === 'video-point'">
-        <component :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name" v-if="!item.hidden"/>
+        <component :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name" v-if="showVideoPoint"/>
       </template>
 
       <template v-else>
-        <component :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name" v-if="!item.hidden"/>
+        <component :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name"/>
       </template>
     </template>
 
@@ -729,15 +743,17 @@ export default {
     },
     show () {
       this.isUserInActive = false
-      // 展示知识点
-      this.toggleVideoPoint(false)
+      // 视频点功能开启,才显示视频点组件
+      this.showVideoPoint && this.toggleVideoPoint(true)
+      console.log('show')
       this.emit('showBottomBar')
     },
     hide () {
       this.isUserInActive = true
       this.isShowVolumeBar = false // 控制栏隐藏后，关闭音量控制条
       // 展示知识点
-      this.toggleVideoPoint(true)
+      this.videoPoint && this.toggleVideoPoint(false)
+      console.log('hiden')
       this.emit('hideBottomBar')
     },
     hideBigPlayBtn () {
@@ -1134,16 +1150,15 @@ export default {
     },
 
     toggleVideoPoint (status) {
-      const item = this.extensionList.find(item => item.name === 'video-point')
-      console.log('item:', item)
-      this.toggleExtensionStatus(item, status)
+      this.showVideoPoint = status || !this.showVideoPoint
+      console.log('this.showVideoPoint:', this.showVideoPoint)
     },
 
     toggleExtensionStatus (item, status) {
       const index = this.extensionList.findIndex(extension => extension.name === item.name)
-      console.log('sfdsfds', {...item, hidden: !item.hidden})
+      // console.log('sfdsfds', {...item, hidden: !item.hidden})
       this.extensionList.splice(index, 1, {...item, hidden: status || !item.hidden})
-      console.log('ssss', this.extensionList)
+      // console.log('ssss', this.extensionList)
     },
 
     videoPointClick (time) {
@@ -1168,13 +1183,11 @@ export default {
 <style lang="stylus" module>
 :global
   @font-face
-    font-family: 'gkplayer-iconfont';  /* project id 372689 */
-    src: url('//at.alicdn.com/t/font_372689_nmcdvcs28cr.eot');
-    src: url('//at.alicdn.com/t/font_372689_nmcdvcs28cr.eot?#iefix') format('embedded-opentype'),
-    url('//at.alicdn.com/t/font_372689_nmcdvcs28cr.woff2') format('woff2'),
-    url('//at.alicdn.com/t/font_372689_nmcdvcs28cr.woff') format('woff'),
-    url('//at.alicdn.com/t/font_372689_nmcdvcs28cr.ttf') format('truetype'),
-    url('//at.alicdn.com/t/font_372689_nmcdvcs28cr.svg#iconfont') format('svg')
+    font-family: 'gkplayer-iconfont';  /* Project id 372689 */
+    src: url('//at.alicdn.com/t/font_372689_ck4vyoqwnhe.woff2?t=1632296395672') format('woff2'),
+    url('//at.alicdn.com/t/font_372689_ck4vyoqwnhe.woff?t=1632296395672') format('woff'),
+    url('//at.alicdn.com/t/font_372689_ck4vyoqwnhe.ttf?t=1632296395672') format('truetype');
+
 
   .gkplayer-iconfont
     font-family:"gkplayer-iconfont" !important;
@@ -1542,6 +1555,12 @@ export default {
       opacity 1
       transform translate3d(-50%, 0, 0)
       transition opacity .3s ease, transform .3s ease
+.videoPointOnBtn
+  &:before
+    content '\e60c'
+.videoPointOffBtn
+  &:before
+    content '\e610'
 .pictureInPictureOnBtn
   &:before
     content '\e6cf'

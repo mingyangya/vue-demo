@@ -1,5 +1,5 @@
 <template>
-  <div class="video-point">
+  <div class="video-point" v-show="showVideoPoint">
     <div class="video-point-container">
       <slot name="prefix">
         <template v-if="isMobile">
@@ -32,6 +32,7 @@ export default {
   name: 'point',
   data () {
     return {
+      showVideoPoint: true,
       list: [],
       showLen: 5,
       currentTime: 0,
@@ -55,7 +56,7 @@ export default {
   watch: {
     'vm.current': {
       handler (time) {
-        console.log(time)
+        // console.log(time)
         this.currentTime = Math.floor(time)
         // todo 处理激活项的位置
         this.timeupdate(this.currentTime)
@@ -88,6 +89,14 @@ export default {
     this.reset()
   },
   methods: {
+    show () {
+      this.showVideoPoint = true
+    },
+
+    hidden () {
+      this.showVideoPoint = false
+    },
+
     init () {
       this.getList() 
     },
