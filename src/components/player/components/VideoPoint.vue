@@ -10,7 +10,7 @@
       </slot>
 
       <ul class="list" @scroll="scroll" ref="ulEle">
-        <li v-for="(item, i) in list" :key="i" @click.stop="clickItem(item)" :class="{'active': item.time === currentTime}" :style="{'width': liWidth + '%' }">{{item.time | formatSecond}} {{item.text}}</li>
+        <li v-for="(item, i) in points" :key="i" @click.stop="clickItem(item)" :class="{'active': item.seconds === currentTime}" :style="{'width': liWidth + '%' }">{{item.seconds | formatSecond}} {{item.desc}}</li>
       </ul>
 
       <slot name="suffix">
@@ -22,7 +22,7 @@
         </template>
       </slot>
     </div>
-    
+
   </div>
 </template>
 
@@ -34,7 +34,7 @@ export default {
     return {
       showVideoPoint1: true,
       showVideoPoint: true,
-      list: [],
+      points: [],
       showLen: 5,
       currentTime: 0,
       scrollLeft: 0
@@ -43,7 +43,8 @@ export default {
   props: {
     vm: Object,
     wrapClick: Function,
-    customEvent: Object
+    customEvent: Object,
+    list: Array,
   },
   filters: {
     formatSecond (second) {
@@ -61,10 +62,23 @@ export default {
         if(this.showVideoPoint) {
           this.currentTime = Math.floor(time)
           // 处理激活项的位置
-          this.timeupdate(this.currentTime)
+          this.$nextTick(() => {
+            this.timeupdate(this.currentTime)
+          })
         }
       },
       immediate: true
+    },
+    'vm.list': {
+      handler (list) {
+        if(list && list.length) {
+          this.points = list
+        } else {
+          this.points = []
+        }
+      },
+      immediate: true,
+      deep: true
     }
   },
   computed: {
@@ -88,9 +102,6 @@ export default {
       return Math.round(this.ulWidth * this.liWidth / 100)
     }
   },
-  mounted () {
-    this.init()
-  },
   beforeDestroy () {
     this.reset()
   },
@@ -103,61 +114,7 @@ export default {
       this.showVideoPoint = false
     },
 
-    init () {
-      this.getList() 
-    },
-
-    getList () {
-      this.list = [{
-        time: 1,
-        text: '君不见黄河之水天上来，奔流到海不复回'
-      },
-      {
-        time: 2,
-        text: '君不见高堂明镜悲白发，朝如青丝暮成雪。'
-      }, {
-        time: 3,
-        text: '人生得意须尽欢，莫使金樽空对月。'
-      }, {
-        time: 4,
-        text: '天生我材必有用，千金散尽还复来。'
-      }, {
-        time: 5,
-        text: '烹羊宰牛且为乐，会须一饮三百杯。'
-      }, {
-        time: 6,
-        text: '岑夫子，丹丘生，将进酒，君莫停。'
-      }, {
-        time: 7,
-        text: '与君歌一曲，请君为我侧耳听。'
-      }, {
-        time: 8,
-        text: '钟鼓馔玉不足贵，但愿长醉不愿醒。'
-      }, {
-        time: 9,
-        text: '古来圣贤皆寂寞，惟有饮者留其名。'
-      }, {
-        time: 10,
-        text: '陈王昔时宴平乐，斗酒十千恣欢谑。'
-      }, {
-        time: 11,
-        text: '主人何为言少钱，径须沽取对君酌。'
-      }, {
-        time: 12,
-        text: '五花马、千金裘，呼儿将出换美酒，与尔同销万古愁。'
-      }, {
-        time: 13,
-        text: '13'
-      }, {
-        time: 14,
-        text: '14'
-      }]
-      // todo 列表为空，隐藏
-    },
-
     clickItem ({ time }){
-      console.log('clickItem')
-      console.log(this.vm)
       this.vm.videoPointClick(time)
 
       this.customEvent && this.customEvent.clickItem && this.customEvent.clickItem()
@@ -190,11 +147,11 @@ export default {
 
     timeupdate (time) {
       // 视频正在播放的时间点 在视频点列表中的索引
-      const index = this.list.findIndex(item => item.time === time)
+      const index = this.points && this.points.findIndex(item => item.seconds === time)
 
       // 在时间点范围内
       if (index !== -1) {
-        // 在0 - this.showLen个视频点子项间，如果有滑动距离，则设置为 0 
+        // 在0 - this.showLen个视频点子项间，如果有滑动距离，则设置为 0
         if(index > 0 && index <= this.showLen - 1) {
           this.scrollTo(0)
         } else if (index > this.showLen - 1) {
@@ -202,7 +159,7 @@ export default {
           const distance = (index + 1 - this.showLen) * this.scrollDistance
           this.scrollTo(distance)
         }
-      }      
+      }
     },
 
     scrollTo (distance) {
@@ -215,7 +172,7 @@ export default {
     },
 
     reset () {
-      this.list = []
+      this.points = []
       this.currentTime = 0
       this.scrollLeft = 0
     },
@@ -257,6 +214,7 @@ $h: 58px;
 .video-point {
   box-sizing: border-box;
   position: absolute;
+  z-index: 19;
   bottom: 56px;
   left: 0;
   width: 100%;
@@ -283,7 +241,7 @@ ul {
   height: 100%;
   padding: 12px 0;
   border-radius: 4px;
-  border: 1px solid #49474E; 
+  border: 1px solid #49474E;
   background: rgba(15, 15, 15, .8);
   overflow-x: auto;
   overflow-y: hidden;
@@ -340,7 +298,7 @@ li {
   &.active {
     color: #FA8919;
 
-    &:before { 
+    &:before {
       top: -1px;
       left: 5px;
       width: 16px;

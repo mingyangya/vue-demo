@@ -218,7 +218,9 @@
 
     <template v-if="extensionList && extensionList.length > 0">
       <template v-for="(item, i) in extensionList" >
-        <component :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name"/>
+        <component v-if="item.name === videoPointKey" :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name"/>
+
+        <component v-else :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name"/>
       </template>
     </template>
 
@@ -250,7 +252,8 @@ export default {
       type: Boolean,
       default: false
     },
-    extensions: Array
+    extensions: Array,
+    list: Array
   },
   data () {
     return {
