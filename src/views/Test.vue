@@ -1,6 +1,6 @@
 <template>
   <div class="test-vue">
-    <Video :video-point-element="VideoPoint" @video-point-click="videoPointClick" />
+    <!-- <Video :video-point-element="VideoPoint" @video-point-click="videoPointClick" /> -->
     <!-- <Video /> -->
   </div>
 </template>

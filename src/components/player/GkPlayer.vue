@@ -112,24 +112,26 @@
         </div>
 
         <!-- 扩展功能 -->
-        <template v-for="(itemJ, j) in extensionList">
-          <div :class="[$style.extensionItem, 'extension-item-'+ itemJ.name]" @click.stop="clickExtenstionItem(itemJ)" :key="j">
-            <template v-if="itemJ.name === 'video-point'">
-              <!-- 视频点 -->
-              <template v-if="showVideoPoint">
-                <div :class="['gkplayer-iconfont', $style.icon, $style.videoPointOnBtn]" video-point-on @click.stop="toggleVideoPoint(false)">
-                  <!-- <div :class="$style.tooltips">退出画中画</div> -->
-                </div>
+        <template v-if="extensionList && extensionList.length > 0">
+          <template v-for="(itemJ, j) in extensionList">
+            <div :class="[$style.extensionItem, 'extension-item-'+ itemJ.name]" @click.stop="clickExtenstionItem(itemJ)" :key="j">
+              <template v-if="itemJ.name === videoPointKey">
+                <!-- 视频点 -->
+                <template v-if="showVideoPoint">
+                  <div :class="['gkplayer-iconfont', $style.icon, $style.videoPointOnBtn]" video-point-on @click.stop="toggleVideoPoint(false)">
+                    <div :class="$style.tooltips">关闭知识点</div>
+                  </div>
+                </template>
+                <template v-else>
+                  <div :class="['gkplayer-iconfont', $style.icon, $style.videoPointOffBtn]" video-point-off @click.stop="toggleVideoPoint(true)">
+                    <div :class="$style.tooltips">开启知识点</div>
+                  </div>
+                </template>
               </template>
-              <template v-else>
-                <div :class="['gkplayer-iconfont', $style.icon, $style.videoPointOffBtn]" video-point-off @click.stop="toggleVideoPoint(true)">
-                  <!-- <div :class="$style.tooltips">开启画中画</div> -->
-                </div>
-              </template>
-            </template>
 
-            <template v-else></template>
-          </div>
+              <template v-else></template>
+            </div>
+          </template>
         </template>
 
         <!-- 画中画 -->
@@ -214,12 +216,8 @@
       </div>
     </template>
 
-    <template v-for="(item, i) in extensionList" >
-      <template v-if="item.name === 'video-point'">
-        <component :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name" v-if="showVideoPoint"/>
-      </template>
-
-      <template v-else>
+    <template v-if="extensionList && extensionList.length > 0">
+      <template v-for="(item, i) in extensionList" >
         <component :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name"/>
       </template>
     </template>
@@ -303,7 +301,8 @@ export default {
       subtitleActiveIndex: 0,
       subtitle: '', // 字幕
       points: [], // 打点信息
-      showVideoPoint: true
+      showVideoPoint: true,
+      videoPointKey: 'video-point' // 视频点组件标示key
     }
   },
   computed: {
@@ -326,7 +325,6 @@ export default {
     // 扩展插件列表
     extensionList () {
       // 把this传递下去
-      console.log(this.extensions[0], this.extensions[0].com, this.extensions[0].com.options)
       return this.extensions && this.extensions.length ? this.extensions.map(item => Object.assign({}, item, {com: item.com, name: item.name, vm: this, hidden: false})) : []
     }
   },
@@ -743,17 +741,19 @@ export default {
     },
     show () {
       this.isUserInActive = false
-      // 视频点功能开启,才显示视频点组件
-      this.showVideoPoint && this.toggleVideoPoint(true)
-      console.log('show')
+
+      // 显示视频点功能开启,显示视频点组件
+      this.showVideoPoint && this.toggleVideoPointStatus(true)
+
       this.emit('showBottomBar')
     },
     hide () {
       this.isUserInActive = true
       this.isShowVolumeBar = false // 控制栏隐藏后，关闭音量控制条
-      // 展示知识点
-      this.videoPoint && this.toggleVideoPoint(false)
-      console.log('hiden')
+
+      // 显示视频点情况下，进度条隐藏，视频点组件一同隐藏
+      this.showVideoPoint && this.toggleVideoPointStatus(false)
+
       this.emit('hideBottomBar')
     },
     hideBigPlayBtn () {
@@ -1144,26 +1144,28 @@ export default {
       this.$emit('toggleOutLineTip', false)
     },
 
-    // 扩展
+    // 扩展组件通用方法
     clickExtenstionItem (item, i) {
       console.log('click', item, i)
     },
 
-    toggleVideoPoint (status) {
-      this.showVideoPoint = status || !this.showVideoPoint
-      console.log('this.showVideoPoint:', this.showVideoPoint)
+    // 控制视频点组件的显隐
+    toggleVideoPointStatus (status) {
+      const vodeoPointEle = this.$refs[`extension-${this.videoPointKey}`]
+      if (vodeoPointEle && vodeoPointEle[0]) {
+        status ? vodeoPointEle[0].show() : vodeoPointEle[0].hide()
+      }
     },
 
-    toggleExtensionStatus (item, status) {
-      const index = this.extensionList.findIndex(extension => extension.name === item.name)
-      // console.log('sfdsfds', {...item, hidden: !item.hidden})
-      this.extensionList.splice(index, 1, {...item, hidden: status || !item.hidden})
-      // console.log('ssss', this.extensionList)
+    // 控制知识点图标状态的切换
+    toggleVideoPoint (status) {
+      this.showVideoPoint = status
+      this.toggleVideoPointStatus(status)
     },
 
     videoPointClick (time) {
       this.seek(time)
-      this.$emit('video-point-click', time)
+      this.$emit(`${this.videoPointKey}-click`, time)
     }
   }
 }
@@ -1182,12 +1184,16 @@ export default {
 
 <style lang="stylus" module>
 :global
+  // @font-face
+  //   font-family: 'gkplayer-iconfont';  /* Project id 372689 */
+  //   src: url('//at.alicdn.com/t/font_372689_ck4vyoqwnhe.woff2?t=1632296395672') format('woff2'),
+  //   url('//at.alicdn.com/t/font_372689_ck4vyoqwnhe.woff?t=1632296395672') format('woff'),
+  //   url('//at.alicdn.com/t/font_372689_ck4vyoqwnhe.ttf?t=1632296395672') format('truetype');
   @font-face
     font-family: 'gkplayer-iconfont';  /* Project id 372689 */
-    src: url('//at.alicdn.com/t/font_372689_ck4vyoqwnhe.woff2?t=1632296395672') format('woff2'),
-    url('//at.alicdn.com/t/font_372689_ck4vyoqwnhe.woff?t=1632296395672') format('woff'),
-    url('//at.alicdn.com/t/font_372689_ck4vyoqwnhe.ttf?t=1632296395672') format('truetype');
-
+    src: url('//at.alicdn.com/t/font_372689_a1px8lr2ji.woff2?t=1632378993110') format('woff2'),
+          url('//at.alicdn.com/t/font_372689_a1px8lr2ji.woff?t=1632378993110') format('woff'),
+          url('//at.alicdn.com/t/font_372689_a1px8lr2ji.ttf?t=1632378993110') format('truetype');
 
   .gkplayer-iconfont
     font-family:"gkplayer-iconfont" !important;
@@ -1532,7 +1538,9 @@ export default {
 .webFullscreenOnBtn,
 .webFullscreenOffBtn,
 .fullscreenOnBtn,
-.fullscreenOffBtn
+.fullscreenOffBtn,
+.videoPointOnBtn,
+.videoPointOffBtn
   position relative
   .tooltips
     position absolute
@@ -1557,10 +1565,10 @@ export default {
       transition opacity .3s ease, transform .3s ease
 .videoPointOnBtn
   &:before
-    content '\e60c'
+    content '\e612'
 .videoPointOffBtn
   &:before
-    content '\e610'
+    content '\e6df'
 .pictureInPictureOnBtn
   &:before
     content '\e6cf'

@@ -1,5 +1,5 @@
 <template>
-  <div class="video-point" v-show="showVideoPoint">
+  <div class="video-point" v-show="showVideoPoint1" v-if="showVideoPoint">
     <div class="video-point-container">
       <slot name="prefix">
         <template v-if="isMobile">
@@ -32,6 +32,7 @@ export default {
   name: 'point',
   data () {
     return {
+      showVideoPoint1: true,
       showVideoPoint: true,
       list: [],
       showLen: 5,
@@ -56,10 +57,12 @@ export default {
   watch: {
     'vm.current': {
       handler (time) {
-        // console.log(time)
-        this.currentTime = Math.floor(time)
-        // todo 处理激活项的位置
-        this.timeupdate(this.currentTime)
+        // 组件不渲染，不处理视频进度
+        if(this.showVideoPoint) {
+          this.currentTime = Math.floor(time)
+          // 处理激活项的位置
+          this.timeupdate(this.currentTime)
+        }
       },
       immediate: true
     }
@@ -71,13 +74,16 @@ export default {
     ulWidth () {
       return this.$refs.ulEle.clientWidth
     },
+    // 每项的宽度占比，例如 20%， 30%，返回值为float类型的两位小数
     liWidth () {
       return (100 / parseFloat(this.showLen)).toFixed(2)
     },
+    // 滑动的最大值
     scroolMax () {
       const totalWidth = ((this.list && this.list.length - this.showLen) || 0) * Math.round(this.ulWidth * this.liWidth / 100)
       return totalWidth
     },
+    // 每次滑动的距离
     scrollDistance () {
       return Math.round(this.ulWidth * this.liWidth / 100)
     }
@@ -93,7 +99,7 @@ export default {
       this.showVideoPoint = true
     },
 
-    hidden () {
+    hide () {
       this.showVideoPoint = false
     },
 
@@ -146,6 +152,7 @@ export default {
         time: 14,
         text: '14'
       }]
+      // todo 列表为空，隐藏
     },
 
     clickItem ({ time }){
@@ -182,18 +189,24 @@ export default {
     },
 
     timeupdate (time) {
+      // 视频正在播放的时间点 在视频点列表中的索引
       const index = this.list.findIndex(item => item.time === time)
 
-      if (index > this.showLen - 1 && index !== -1) {
-        const distance = (index + 1 - this.showLen) * this.scrollDistance
-        this.scrollTo(distance)
-      }
-      
+      // 在时间点范围内
+      if (index !== -1) {
+        // 在0 - this.showLen个视频点子项间，如果有滑动距离，则设置为 0 
+        if(index > 0 && index <= this.showLen - 1) {
+          this.scrollTo(0)
+        } else if (index > this.showLen - 1) {
+          // 超过this.showLen后 每次移动一个子项的距离
+          const distance = (index + 1 - this.showLen) * this.scrollDistance
+          this.scrollTo(distance)
+        }
+      }      
     },
 
     scrollTo (distance) {
       const ulEle = this.$refs.ulEle
-      console.log('is:', window.getComputedStyle(ulEle).scrollBehavior)
       if (window.getComputedStyle(ulEle).scrollBehavior) {
         ulEle.scrollLeft = distance
       } else {
@@ -248,7 +261,12 @@ $h: 58px;
   left: 0;
   width: 100%;
   height: $h;
-  padding: 0 30px;
+  padding: 0 10px;
+  font: 400 1em/1.8 PingFang SC,Avenir,Tahoma,Arial,Lantinghei SC,Microsoft Yahei,Hiragino Sans GB,Microsoft Sans Serif,WenQuanYi Micro Hei,Helvetica,sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 .video-point-container {
@@ -264,7 +282,7 @@ ul {
   width:100%;
   height: 100%;
   padding: 12px 0;
-  border-radius: 10px;
+  border-radius: 4px;
   border: 1px solid #49474E; 
   background: rgba(15, 15, 15, .8);
   overflow-x: auto;

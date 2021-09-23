@@ -132,7 +132,6 @@ class Player {
   }
 
   initVideo (src) {
-    console.log(this.Hls, this.options)
     this.initMSE(src)
 
     /**
