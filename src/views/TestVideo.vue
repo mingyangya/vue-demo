@@ -8,7 +8,6 @@
 
 import Player from '../components/player/GkPlayer.vue'
 import VideoPoint from '../components/player/components/VideoPoint.vue'
-import Pop from '../components/player/components/Pop.vue'
 export default {
   data () {
     return {
@@ -72,9 +71,6 @@ export default {
           clickNext: this.clickNext,
           clickItem: this.clickItem
         } 
-      }, 
-      { 
-        com: Pop
       }]
     }
   },
