@@ -1,13 +1,10 @@
 <template>
   <div class="test-vue">
-    <!-- <Video :video-point-element="VideoPoint" @video-point-click="videoPointClick" /> -->
-    <!-- <Video /> -->
+    test
   </div>
 </template>
 
 <script>
-import VideoPoint from '../components/video/VideoPoint'
-import Video from '../components/video/Index.vue'
 export default {
   data () {
     return {
@@ -15,12 +12,8 @@ export default {
     }
   },
   components: {
-    Video
   },
   computed: {
-    VideoPoint () {
-      return VideoPoint
-    }
   },
   methods: {
     videoPointClick () {

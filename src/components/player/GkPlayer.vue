@@ -1155,7 +1155,7 @@ export default {
     // 控制视频点组件的显隐
     toggleVideoPointStatus (status) {
       const vodeoPointEle = this.$refs[`extension-${this.videoPointKey}`]
-      if (vodeoPointEle && vodeoPointEle[0]) {
+      if (vodeoPointEle && vodeoPointEle[0] && this.list && this.list.length > 0) {
         status ? vodeoPointEle[0].show() : vodeoPointEle[0].hide()
       }
     },
@@ -1187,11 +1187,6 @@ export default {
 
 <style lang="stylus" module>
 :global
-  // @font-face
-  //   font-family: 'gkplayer-iconfont';  /* Project id 372689 */
-  //   src: url('//at.alicdn.com/t/font_372689_ck4vyoqwnhe.woff2?t=1632296395672') format('woff2'),
-  //   url('//at.alicdn.com/t/font_372689_ck4vyoqwnhe.woff?t=1632296395672') format('woff'),
-  //   url('//at.alicdn.com/t/font_372689_ck4vyoqwnhe.ttf?t=1632296395672') format('truetype');
   @font-face
     font-family: 'gkplayer-iconfont';  /* Project id 372689 */
     src: url('//at.alicdn.com/t/font_372689_a1px8lr2ji.woff2?t=1632378993110') format('woff2'),

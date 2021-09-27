@@ -75,6 +75,7 @@ export default {
           this.points = list
         } else {
           this.points = []
+          this.hide()
         }
       },
       immediate: true,
@@ -94,7 +95,7 @@ export default {
     },
     // 滑动的最大值
     scroolMax () {
-      const totalWidth = ((this.list && this.list.length - this.showLen) || 0) * Math.round(this.ulWidth * this.liWidth / 100)
+      const totalWidth = ((this.points && this.points.length - this.showLen) || 0) * Math.round(this.ulWidth * this.liWidth / 100)
       return totalWidth
     },
     // 每次滑动的距离
@@ -114,8 +115,8 @@ export default {
       this.showVideoPoint = false
     },
 
-    clickItem ({ time }){
-      this.vm.videoPointClick(time)
+    clickItem ({ seconds }){
+      this.vm.videoPointClick(seconds)
 
       this.customEvent && this.customEvent.clickItem && this.customEvent.clickItem()
     },
@@ -220,11 +221,6 @@ $h: 58px;
   width: 100%;
   height: $h;
   padding: 0 10px;
-  font: 400 1em/1.8 PingFang SC,Avenir,Tahoma,Arial,Lantinghei SC,Microsoft Yahei,Hiragino Sans GB,Microsoft Sans Serif,WenQuanYi Micro Hei,Helvetica,sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -webkit-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
-    text-size-adjust: 100%;
 }
 
 .video-point-container {
