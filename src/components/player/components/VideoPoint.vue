@@ -10,7 +10,7 @@
       </slot>
 
       <ul class="list" @scroll="scroll" ref="ulEle">
-        <li v-for="(item, i) in points" :key="i" @click.stop="clickItem(item)" :class="{'active': item.seconds === currentTime}" :style="{'width': liWidth + '%' }">{{item.seconds | formatSecond}} {{item.desc}}</li>
+        <li v-for="(item, i) in points" :key="i" @click.stop="clickItem(item)" :class="{ 'paused' : vm.paused, 'active': (currentTime >= item.period[0]) && (currentTime < item.period[1])}" :style="{'width': liWidth + '%' }">{{item.seconds | formatSecond}} {{item.desc}}</li>
       </ul>
 
       <slot name="suffix">
@@ -44,7 +44,7 @@ export default {
     vm: Object,
     wrapClick: Function,
     customEvent: Object,
-    list: Array,
+    list: Array
   },
   filters: {
     formatSecond (second) {
@@ -59,7 +59,7 @@ export default {
     'vm.current': {
       handler (time) {
         // 组件不渲染，不处理视频进度
-        if(this.showVideoPoint) {
+        if (this.showVideoPoint) {
           this.currentTime = Math.floor(time)
           // 处理激活项的位置
           this.$nextTick(() => {
@@ -71,8 +71,9 @@ export default {
     },
     'vm.list': {
       handler (list) {
-        if(list && list.length) {
-          this.points = list
+        if (list && list.length) {
+          const listLen = list.length
+          this.points = list.map((item, i, arr) => Object.assign({}, item, { period: [item.seconds, i < listLen - 1 ? arr[i + 1].seconds : item.seconds]}))
         } else {
           this.points = []
           this.hide()
@@ -101,7 +102,13 @@ export default {
     // 每次滑动的距离
     scrollDistance () {
       return Math.round(this.ulWidth * this.liWidth / 100)
+    },
+    orientationchangeEvent () {
+      return 'onorientationchange' in window ? 'orientationchange' : 'resize'
     }
+  },
+  created () {
+    this.addOrientationChange()
   },
   beforeDestroy () {
     this.reset()
@@ -115,7 +122,7 @@ export default {
       this.showVideoPoint = false
     },
 
-    clickItem ({ seconds }){
+    clickItem ({ seconds }) {
       this.vm.videoPointClick(seconds)
 
       this.customEvent && this.customEvent.clickItem && this.customEvent.clickItem()
@@ -153,7 +160,7 @@ export default {
       // 在时间点范围内
       if (index !== -1) {
         // 在0 - this.showLen个视频点子项间，如果有滑动距离，则设置为 0
-        if(index > 0 && index <= this.showLen - 1) {
+        if (index > 0 && index <= this.showLen - 1) {
           this.scrollTo(0)
         } else if (index > this.showLen - 1) {
           // 超过this.showLen后 每次移动一个子项的距离
@@ -176,6 +183,8 @@ export default {
       this.points = []
       this.currentTime = 0
       this.scrollLeft = 0
+
+      this.removeOrientationChange()
     },
 
     // 模拟平滑滚动
@@ -205,7 +214,29 @@ export default {
       }
 
       step()
+    },
+
+    // 监听屏幕方向
+    addOrientationChange () {
+      console.log('event', this.orientationchangeEvent)
+      window.addEventListener(this.orientationchangeEvent, this.orientationChangeFun, false)
+    },
+
+    orientationChangeFun () {
+      const orientation = window.orientation
+      console.log('orientation:', orientation)
+      if (orientation === 180 || orientation === 0) {
+        alert('竖屏状态！')
+      }
+      if (orientation === 90 || orientation === -90) {
+        alert('横屏状态！')
+      }
+    },
+
+    removeOrientationChange () {
+      window.removeEventListener(this.orientationchangeEvent, this.orientationChangeFun)
     }
+
   }
 }
 </script>
@@ -215,7 +246,6 @@ $h: 58px;
 .video-point {
   box-sizing: border-box;
   position: absolute;
-  z-index: 19;
   bottom: 56px;
   left: 0;
   width: 100%;
@@ -291,6 +321,12 @@ li {
     background: #C2C2C2;
   }
 
+  &:last-child {
+    &:after {
+      display: none;
+    }
+  }
+
   &.active {
     color: #FA8919;
 
@@ -301,6 +337,19 @@ li {
       height: 19px;
       background: url('../image/i-runing.gif') no-repeat center / 100% auto transparent;
       border-radius: 0;
+    }
+
+    &.paused {
+      &:before {
+        content: '';
+        position: absolute;
+        top: 5px;
+        left: 13px;
+        width: 5px;
+        height: 5px;
+        background: #FA8919;
+        border-radius: 50%;
+      }
     }
 
     .time {

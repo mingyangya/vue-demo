@@ -218,7 +218,9 @@
 
     <template v-if="extensionList && extensionList.length > 0">
       <template v-for="(item, i) in extensionList" >
-        <component v-if="item.name === videoPointKey" :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name"/>
+        <template v-if="item.name === videoPointKey">
+          <component v-if="showVideoPoint" :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name"/>
+        </template>
 
         <component v-else :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name"/>
       </template>
@@ -667,9 +669,9 @@ export default {
       const duration = this.player.duration
       const points = this.config.points || []
       const len = points.length
-      let pointsInfo = []
+      const pointsInfo = []
       for (let i = 0; i < len; i++) {
-        let info = {
+        const info = {
           x: points[i].time / duration * 100 + '%',
           text: points[i].text,
           time: points[i].time
@@ -744,19 +746,11 @@ export default {
     },
     show () {
       this.isUserInActive = false
-
-      // 显示视频点功能开启,显示视频点组件
-      this.showVideoPoint && this.toggleVideoPointStatus(true)
-
       this.emit('showBottomBar')
     },
     hide () {
       this.isUserInActive = true
       this.isShowVolumeBar = false // 控制栏隐藏后，关闭音量控制条
-
-      // 显示视频点情况下，进度条隐藏，视频点组件一同隐藏
-      this.showVideoPoint && this.toggleVideoPointStatus(false)
-
       this.emit('hideBottomBar')
     },
     hideBigPlayBtn () {
@@ -1152,18 +1146,9 @@ export default {
       console.log('click', item, i)
     },
 
-    // 控制视频点组件的显隐
-    toggleVideoPointStatus (status) {
-      const vodeoPointEle = this.$refs[`extension-${this.videoPointKey}`]
-      if (vodeoPointEle && vodeoPointEle[0] && this.list && this.list.length > 0) {
-        status ? vodeoPointEle[0].show() : vodeoPointEle[0].hide()
-      }
-    },
-
-    // 控制知识点图标状态的切换
+    // 控制知识点图标状态的切换 & 控制视频点组件的显隐
     toggleVideoPoint (status) {
-      this.showVideoPoint = status
-      this.toggleVideoPointStatus(status)
+      this.showVideoPoint = status || !this.showVideoPoint
     },
 
     videoPointClick (time) {

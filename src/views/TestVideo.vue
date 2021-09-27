@@ -17,43 +17,43 @@ export default {
         desc: '君不见黄河之水天上来，奔流到海不复回'
       },
       {
-        seconds: 2,
+        seconds: 20,
         desc: '君不见高堂明镜悲白发，朝如青丝暮成雪。'
       }, {
-        seconds: 3,
+        seconds: 30,
         desc: '人生得意须尽欢，莫使金樽空对月。'
       }, {
-        seconds: 4,
+        seconds: 49,
         desc: '天生我材必有用，千金散尽还复来。'
       }, {
-        seconds: 5,
+        seconds: 59,
         desc: '烹羊宰牛且为乐，会须一饮三百杯。'
       }, {
-        seconds: 6,
+        seconds: 66,
         desc: '岑夫子，丹丘生，将进酒，君莫停。'
       }, {
-        seconds: 7,
+        seconds: 79,
         desc: '与君歌一曲，请君为我侧耳听。'
       }, {
-        seconds: 8,
+        seconds: 88,
         desc: '钟鼓馔玉不足贵，但愿长醉不愿醒。'
       }, {
-        seconds: 9,
+        seconds: 99,
         desc: '古来圣贤皆寂寞，惟有饮者留其名。'
       }, {
-        seconds: 10,
+        seconds: 100,
         desc: '陈王昔时宴平乐，斗酒十千恣欢谑。'
       }, {
-        seconds: 11,
+        seconds: 111,
         desc: '主人何为言少钱，径须沽取对君酌。'
       }, {
-        seconds: 12,
+        seconds: 120,
         desc: '五花马、千金裘，呼儿将出换美酒，与尔同销万古愁。'
       }, {
-        seconds: 13,
+        seconds: 130,
         desc: '13'
       }, {
-        seconds: 14,
+        seconds: 140,
         desc: '14'
       }]
     }
