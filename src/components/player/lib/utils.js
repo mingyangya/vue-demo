@@ -115,6 +115,25 @@ const utils = {
     }, false); 
   },
 
+  /**
+   * 节流函数
+   * @see https://developer.mozilla.org/zh-CN/docs/Web/API/Document/scroll_event
+   * @param {Function} callback 执行函数
+   * @param {Number}   time     间隔时间
+   */
+  throttle (callback) {
+    let ticking = false
+    return function () {
+      if (!ticking) {
+        ticking = true
+        requestAnimationFrame(function () {
+          callback && callback()
+          ticking = false
+        })
+      }
+    }
+  },
+
   nameMap: {
     dragStart: isMobile ? 'touchstart' : 'mousedown',
     dragMove: isMobile ? 'touchmove' : 'mousemove',

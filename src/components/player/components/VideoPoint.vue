@@ -1,15 +1,47 @@
 <template>
-  <div class="video-point" v-show="showVideoPoint1" v-if="showVideoPoint">
+  <div :class="['video-point', {'video-point-mobile': isMobile}, orientation]" :orientation="orientation" v-if="showVideoPoint">
     <div class="video-point-container">
       <slot name="prefix">
         <template v-if="isMobile">
+          <!-- 折叠 -->
+          <template v-if="fold">
+            
+            <div :class="['fold-area', orientation]" @click.stop="toggleFold(false)">
+              <!-- 横屏 -->
+              <template v-if="orientation === 'landscape'">
+                <div class="icon-book"></div>
+                <div class="landscape-fold-area-text">知识点</div>
+              </template>
+
+              <template v-else>
+                <div class="fold-area-text">知识点</div>
+                <div class="icon icon-next"></div>
+              </template>
+            </div>
+          </template>
+
+          <template v-else>
+            <div :class="['unfold-area', orientation]" @click.stop="toggleFold(true)">
+              <template v-if="orientation === 'landscape'">
+                <div class="icon-book"></div>
+                <div class="landscape-unfold-area-text">知识点</div>
+              </template>
+
+              <template v-else>
+                <div class="unfold-area-text">知识点</div>
+              </template>
+              
+            </div>
+          </template>
+
         </template>
         <template v-else>
           <span class="icon icon-prev" @click.stop="clickPrev"></span>
         </template>
       </slot>
 
-      <ul class="list" @scroll="scroll" ref="ulEle">
+      <!-- 手机且展开或非手机 -->
+      <ul class="list" @scroll="scroll" ref="ulEle" v-if="(isMobile && !fold) || !isMobile">
         <li v-for="(item, i) in points" :key="i" @click.stop="clickItem(item)" :class="{ 'paused' : vm.paused, 'active': (currentTime >= item.period[0]) && (currentTime < item.period[1])}" :style="{'width': liWidth + '%' }">{{item.seconds | formatSecond}} {{item.desc}}</li>
       </ul>
 
@@ -32,12 +64,16 @@ export default {
   name: 'point',
   data () {
     return {
+      isMobile: false,
       showVideoPoint1: true,
       showVideoPoint: true,
       points: [],
       showLen: 5,
       currentTime: 0,
-      scrollLeft: 0
+      scrollLeft: 0,
+      events: ['resize', 'orientationchange'],
+      orientation: '', // portrait 竖屏，landscape 横屏
+      fold: true // 是否折叠
     }
   },
   props: {
@@ -84,9 +120,6 @@ export default {
     }
   },
   computed: {
-    isMobile () {
-      return utils.isMobile
-    },
     ulWidth () {
       return this.$refs.ulEle.clientWidth
     },
@@ -102,26 +135,39 @@ export default {
     // 每次滑动的距离
     scrollDistance () {
       return Math.round(this.ulWidth * this.liWidth / 100)
-    },
-    orientationchangeEvent () {
-      return 'onorientationchange' in window ? 'orientationchange' : 'resize'
     }
   },
   created () {
-    this.addOrientationChange()
+    this.init()
   },
   beforeDestroy () {
     this.reset()
   },
   methods: {
     show () {
-      this.showVideoPoint = true
+      if (this.isMobile) {
+        this.fold = true
+      } else {
+        this.showVideoPoint = true
+      }
     },
 
     hide () {
-      this.showVideoPoint = false
+      if (this.isMobile) {
+        this.fold = false
+      } else {
+        this.showVideoPoint = fales
+      }
     },
 
+    init () {
+      this.addEvents()
+      this.checkMobile()
+      this.orientationChange()
+      this.setShowLen()
+      this.setVideoPointStatus()
+    },
+  
     clickItem ({ seconds }) {
       this.vm.videoPointClick(seconds)
 
@@ -171,12 +217,15 @@ export default {
     },
 
     scrollTo (distance) {
-      const ulEle = this.$refs.ulEle
-      if (window.getComputedStyle(ulEle).scrollBehavior) {
-        ulEle.scrollLeft = distance
-      } else {
-        this.scrollSmoothTo(distance)
-      }
+      this.$nextTick(() => {
+        const ulEle = this.$refs.ulEle
+        const style = window.getComputedStyle(ulEle)
+        if (style && style.scrollBehavior) {
+          ulEle.scrollLeft = distance
+        } else {
+          this.scrollSmoothTo(distance)
+        }
+      })
     },
 
     reset () {
@@ -184,7 +233,7 @@ export default {
       this.currentTime = 0
       this.scrollLeft = 0
 
-      this.removeOrientationChange()
+      this.removeEvents()
     },
 
     // 模拟平滑滚动
@@ -216,25 +265,70 @@ export default {
       step()
     },
 
-    // 监听屏幕方向
-    addOrientationChange () {
-      console.log('event', this.orientationchangeEvent)
-      window.addEventListener(this.orientationchangeEvent, this.orientationChangeFun, false)
+    // 展开知识点
+    toggleFold (status) {
+      this.fold = status
     },
 
-    orientationChangeFun () {
-      const orientation = window.orientation
-      console.log('orientation:', orientation)
-      if (orientation === 180 || orientation === 0) {
-        alert('竖屏状态！')
+    // 校验是否为手机端
+    checkMobile () {
+      this.isMobile = utils.isMobile || document.body.clientWidth <= 768
+      return this.isMobile
+    },
+
+    addEvents () {
+      window.addEventListener(this.events[0], this.resize)
+      window.addEventListener(this.events[1], this.orientationChange)
+    },
+
+    removeEvents () {
+      window.addEventListener(this.events[0], this.resize)
+      window.addEventListener(this.events[1], this.orientationChange)
+    },
+
+    resize () {
+      return utils.throttle(() => {
+        this.checkMobile()
+        this.setShowLen()
+        this.setVideoPointStatus()
+      })()
+    },
+
+    // 屏幕旋转
+    orientationChange () {
+      let result = ''
+      switch (window.orientation) {
+        // 横屏
+        case 180:
+        case 0:
+          result = 'portrait'
+          break
+        // 竖屏
+        case 90:
+        case -90:
+          result = 'landscape'
+          break
+        default:
+          result = ''
+          break
       }
-      if (orientation === 90 || orientation === -90) {
-        alert('横屏状态！')
+      this.orientation = result
+    },
+
+    // 设置显示知识点的个数
+    setShowLen () {
+      if (document.body.clientWidth <= 768 || this.isMobile) {
+        // 小屏, 横屏5个，竖屏3个
+        this.showLen = this.orientation === 'landscape' ? 5 : 3
+      } else {
+        this.showLen = 5
+        // 大屏
       }
     },
 
-    removeOrientationChange () {
-      window.removeEventListener(this.orientationchangeEvent, this.orientationChangeFun)
+    // 设置视频播放器视频点图标显示状态
+    setVideoPointStatus () {
+      this.vm.hideVideoPointIcon = this.checkMobile()
     }
 
   }
@@ -255,15 +349,18 @@ $h: 58px;
 
 .video-point-container {
   position: relative;
+  display: flex;
+  align-items: center;
   width: 100%;
   height: 100%;
 }
 
 ul {
   box-sizing: border-box;
-  display: flex;
+  display: inline-flex;
   flex-wrap: nowrap;
-  width:100%;
+  flex: 1;
+  flex-shrink: 0;
   height: 100%;
   padding: 12px 0;
   border-radius: 4px;
@@ -385,4 +482,119 @@ li {
   right: 0;
   background-image: url('../image/arrow-right.png');
 }
+
+// 移动端相关样式
+
+.fold-area {
+  position: relative;
+  // top: -1px;
+  // left: -1px;
+  box-sizing: border-box;
+  width: 33px;
+  height: 48px;
+  flex-shrink: 0;
+  background: rgba(14, 21, 29, 0.7);
+  border-radius: 5px;
+
+  .icon-next {
+    right: -9px;
+    width: 9px;
+    height: 18px;
+    border-radius: 0 9px 9px 0;
+    background: no-repeat url('../image/icon-next.png') center right 2px / 9px auto rgba(14, 21, 29, 0.7);
+  }
+
+  // 横屏
+  &.landscape {
+    display: flex;
+    align-items: center;
+    // justify-content: center;
+    flex-direction: column;
+    height: 32px;
+  }
+}
+
+.fold-area-text {
+  transform: scale(0.5) translateY(-10px);
+  line-height: 33px;
+  font-size: 20px;
+  color: #FFFFFF;
+  writing-mode: vertical-lr;
+  word-break: keep-all;
+}
+
+.unfold-area {
+  position: relative;
+  box-sizing: border-box;
+  width: 33px;
+  height: 50px;
+  flex-shrink: 0;
+  background: rgba(14, 21, 29, 0.7);
+  border-radius: 6px 0 0 6px;
+  border: 1px solid #49474E;
+  border-right: none;
+
+  // 横屏
+  &.landscape {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    height: 32px;
+  }
+}
+
+.unfold-area-text {
+  transform: scale(0.5) translateY(-10px);
+  line-height: 33px;
+  font-size: 20px;
+  color: #FFFFFF;
+  writing-mode: vertical-lr;
+  word-break: keep-all;
+}
+
+.landscape-fold-area-text {
+  width: 60px;
+  height: 28px;
+  font-size: 20px;
+  transform: scale(.25);
+  font-weight: 400;
+  color: #FFFFFF;
+  word-break: keep-all;
+}
+
+.landscape-unfold-area-text {
+  width: 60px;
+  height: 28px;
+  font-size: 20px;
+  transform: scale(.25);
+  font-weight: 400;
+  color: #FFFFFF;
+  word-break: keep-all;
+}
+
+.icon-book {
+  flex-shrink: 0;
+  width: 10px;
+  height: 11px;
+  margin: 6px 0 -11px 0;
+  background: no-repeat url('../image/book.png') center / 100% auto;
+}
+
+.video-point-mobile {
+  .list {
+    height: 50px;
+    padding: 9px 0;
+    border-left: none ;
+    border-radius: 0 6px 6px 0;
+  }
+
+  // 横屏
+  &.landscape{
+    .list {
+      height: 32px;
+      padding: 7px 0;
+    }
+  }
+}
+
 </style>

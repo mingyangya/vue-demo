@@ -117,15 +117,18 @@
             <div :class="[$style.extensionItem, 'extension-item-'+ itemJ.name]" @click.stop="clickExtenstionItem(itemJ)" :key="j">
               <template v-if="itemJ.name === videoPointKey">
                 <!-- 视频点 -->
-                <template v-if="showVideoPoint">
-                  <div :class="['gkplayer-iconfont', $style.icon, $style.videoPointOnBtn]" video-point-on @click.stop="toggleVideoPoint(false)">
-                    <div :class="$style.tooltips">关闭知识点</div>
-                  </div>
-                </template>
-                <template v-else>
-                  <div :class="['gkplayer-iconfont', $style.icon, $style.videoPointOffBtn]" video-point-off @click.stop="toggleVideoPoint(true)">
-                    <div :class="$style.tooltips">开启知识点</div>
-                  </div>
+                <!-- 移动端隐藏图标 -->
+                <template v-if="!hideVideoPointIcon">
+                  <template v-if="showVideoPoint">
+                    <div :class="['gkplayer-iconfont', $style.icon, $style.videoPointOnBtn]" video-point-on @click.stop="toggleVideoPoint(false)">
+                      <div :class="$style.tooltips">关闭知识点</div>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div :class="['gkplayer-iconfont', $style.icon, $style.videoPointOffBtn]" video-point-off @click.stop="toggleVideoPoint(true)">
+                      <div :class="$style.tooltips">开启知识点</div>
+                    </div>
+                  </template>
                 </template>
               </template>
 
@@ -307,7 +310,8 @@ export default {
       subtitle: '', // 字幕
       points: [], // 打点信息
       showVideoPoint: true,
-      videoPointKey: 'video-point' // 视频点组件标示key
+      videoPointKey: 'video-point', // 视频点组件标示key
+      hideVideoPointIcon: false,
     }
   },
   computed: {
@@ -1148,7 +1152,12 @@ export default {
 
     // 控制知识点图标状态的切换 & 控制视频点组件的显隐
     toggleVideoPoint (status) {
-      this.showVideoPoint = status || !this.showVideoPoint
+      this.$nextTick(() => {
+        let ele = this.$refs[this.videoPointKey]
+        ele = ele && ele[0]
+
+        status ? ele.show() : ele.hide()
+      })
     },
 
     videoPointClick (time) {
