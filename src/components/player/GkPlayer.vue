@@ -311,7 +311,7 @@ export default {
       points: [], // 打点信息
       showVideoPoint: true,
       videoPointKey: 'video-point', // 视频点组件标示key
-      hideVideoPointIcon: false,
+      hideVideoPointIcon: false
     }
   },
   computed: {
@@ -1129,9 +1129,9 @@ export default {
           this.events[name][i](info)
         }
       }
-      if (this.events['eventTriggered'] && this.events['eventTriggered'].length) {
-        for (let i = 0; i < this.events['eventTriggered'].length; i++) {
-          this.events['eventTriggered'][i](info)
+      if (this.events.eventTriggered && this.events.eventTriggered.length) {
+        for (let i = 0; i < this.events.eventTriggered.length; i++) {
+          this.events.eventTriggered[i](info)
         }
       }
     },

@@ -103,18 +103,6 @@ const utils = {
     }
   },
 
-  getDeviceDirction () {
-    //判断手机横竖屏状态
-    window.addEventListener("onorientationchange" in window ? "orientationchange" : "resize", function () {
-      if (window.orientation === 180 || window.orientation === 0) { 
-        alert('竖屏状态！');
-      } 
-      if (window.orientation === 90 || window.orientation === -90){ 
-        alert('横屏状态！');
-      } 
-    }, false); 
-  },
-
   /**
    * 节流函数
    * @see https://developer.mozilla.org/zh-CN/docs/Web/API/Document/scroll_event

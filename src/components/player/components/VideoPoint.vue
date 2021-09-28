@@ -5,7 +5,7 @@
         <template v-if="isMobile">
           <!-- 折叠 -->
           <template v-if="fold">
-            
+
             <div :class="['fold-area', orientation]" @click.stop="toggleFold(false)">
               <!-- 横屏 -->
               <template v-if="orientation === 'landscape'">
@@ -30,7 +30,7 @@
               <template v-else>
                 <div class="unfold-area-text">知识点</div>
               </template>
-              
+
             </div>
           </template>
 
@@ -156,7 +156,7 @@ export default {
       if (this.isMobile) {
         this.fold = false
       } else {
-        this.showVideoPoint = fales
+        this.showVideoPoint = false
       }
     },
 
@@ -167,7 +167,7 @@ export default {
       this.setShowLen()
       this.setVideoPointStatus()
     },
-  
+
     clickItem ({ seconds }) {
       this.vm.videoPointClick(seconds)
 
