@@ -1,5 +1,5 @@
 <template>
-  <div :class="['video-point', {'video-point-mobile': isMobile}, orientation]" :orientation="orientation">
+  <div :class="['video-point', {'video-point-mobile': isMobile, hide: !this.showVideoPoint}, orientation]" :orientation="orientation">
     <template v-if="!isMobile">
       <div class="video-point-container" v-if="showVideoPoint">
         <slot name="prefix">
@@ -365,6 +365,10 @@ $h: 58px;
   width: 100%;
   height: $h;
   padding: 0 10px;
+
+  &.hide {
+    display: none;
+  }
 }
 
 .video-point-container {
@@ -601,6 +605,12 @@ li {
 }
 
 .video-point-mobile {
+
+  &.hide {
+    display: block;
+    width: 53px;
+  }
+
   .list {
     height: 50px;
     padding: 9px 0;
