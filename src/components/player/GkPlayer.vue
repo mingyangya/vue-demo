@@ -222,10 +222,10 @@
     <template v-if="extensionList && extensionList.length > 0">
       <template v-for="(item, i) in extensionList" >
         <template v-if="item.name === videoPointKey">
-          <component v-if="showVideoPoint" :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name"/>
+          <component :is="item.com ? item.com : ''" :key="i" :show="showVideoPoint" :vm="item.vm" :custom-event="item.customEvent" :ref="item.name"/>
         </template>
 
-        <component v-else :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="'extension-' + item.name"/>
+        <component v-else :is="item.com ? item.com : ''" :key="i" :vm="item.vm" :custom-event="item.customEvent" :ref="item.name"/>
       </template>
     </template>
 
@@ -750,11 +750,15 @@ export default {
     },
     show () {
       this.isUserInActive = false
+
+      this.setIconStatus(true)
       this.emit('showBottomBar')
     },
     hide () {
       this.isUserInActive = true
       this.isShowVolumeBar = false // 控制栏隐藏后，关闭音量控制条
+
+      this.setIconStatus(false)
       this.emit('hideBottomBar')
     },
     hideBigPlayBtn () {
@@ -1150,13 +1154,18 @@ export default {
       console.log('click', item, i)
     },
 
-    // 控制知识点图标状态的切换 & 控制视频点组件的显隐
+    // pc下 控制视频点图标状态的切换 & 控制视频点组件的显隐
     toggleVideoPoint (status) {
+      this.showVideoPoint = status
+    },
+
+    // mobile下控制视频点图标的显隐
+    setIconStatus (status) {
       this.$nextTick(() => {
         let ele = this.$refs[this.videoPointKey]
         ele = ele && ele[0]
 
-        status ? ele.show() : ele.hide()
+        ele.setIconStatus(status)
       })
     },
 

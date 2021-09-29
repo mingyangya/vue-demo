@@ -1,12 +1,27 @@
 <template>
-  <div :class="['video-point', {'video-point-mobile': isMobile}, orientation]" :orientation="orientation" v-if="showVideoPoint">
-    <div class="video-point-container">
-      <slot name="prefix">
-        <template v-if="isMobile">
+  <div :class="['video-point', {'video-point-mobile': isMobile}, orientation]" :orientation="orientation">
+    <template v-if="!isMobile">
+      <div class="video-point-container" v-if="showVideoPoint">
+        <slot name="prefix">
+          <span class="icon icon-prev" @click.stop="clickPrev"></span>
+        </slot>
+
+        <ul class="list video-point-list" @scroll="scroll" ref="ulEle">
+          <li v-for="(item, i) in points" :key="i" @click.stop="clickItem(item)" :class="{ 'paused' : vm.paused, 'active': (currentTime >= item.period[0]) && (currentTime < item.period[1])}" :style="{'width': liWidth + '%' }">{{item.seconds | formatSecond}} {{item.desc}}</li>
+        </ul>
+
+        <slot name="suffix">
+          <span class="icon icon-next" @click.stop="clickNext"></span>
+        </slot>
+      </div>
+    </template>
+
+    <template v-else>
+      <div class="video-point-container">
+        <slot name="prefix">
           <!-- 折叠 -->
           <template v-if="fold">
-
-            <div :class="['fold-area', orientation]" @click.stop="toggleFold(false)">
+            <div :class="['fold-area', orientation]" @click.stop="toggleFold(false)" v-show="showFoldIcon">
               <!-- 横屏 -->
               <template v-if="orientation === 'landscape'">
                 <div class="icon-book"></div>
@@ -21,7 +36,7 @@
           </template>
 
           <template v-else>
-            <div :class="['unfold-area', orientation]" @click.stop="toggleFold(true)">
+            <div :class="['unfold-area', orientation]" @click.stop="toggleFold(true)" v-show="showFoldIcon">
               <template v-if="orientation === 'landscape'">
                 <div class="icon-book"></div>
                 <div class="landscape-unfold-area-text">知识点</div>
@@ -33,28 +48,15 @@
 
             </div>
           </template>
+        </slot>
 
-        </template>
-        <template v-else>
-          <span class="icon icon-prev" @click.stop="clickPrev"></span>
-        </template>
-      </slot>
+        <ul class="list video-point-list" @scroll="scroll" ref="ulEle" v-if="showVideoPoint">
+          <li v-for="(item, i) in points" :key="i" @click.stop="clickItem(item)" :class="{ 'paused' : vm.paused, 'active': (currentTime >= item.period[0]) && (currentTime < item.period[1])}" :style="{'width': liWidth + '%' }">{{item.seconds | formatSecond}} {{item.desc}}</li>
+        </ul>
 
-      <!-- 手机且展开或非手机 -->
-      <ul class="list" @scroll="scroll" ref="ulEle" v-if="(isMobile && !fold) || !isMobile">
-        <li v-for="(item, i) in points" :key="i" @click.stop="clickItem(item)" :class="{ 'paused' : vm.paused, 'active': (currentTime >= item.period[0]) && (currentTime < item.period[1])}" :style="{'width': liWidth + '%' }">{{item.seconds | formatSecond}} {{item.desc}}</li>
-      </ul>
-
-      <slot name="suffix">
-        <template v-if="isMobile">
-        </template>
-        <template v-else>
-          <span class="icon icon-next" @click.stop="clickNext"></span>
-          <!-- <span class="icon icon-next" @click.stop="customEvent.clickLeft"></span> -->
-        </template>
-      </slot>
-    </div>
-
+        <slot name="suffix"></slot>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -65,7 +67,6 @@ export default {
   data () {
     return {
       isMobile: false,
-      showVideoPoint1: true,
       showVideoPoint: true,
       points: [],
       showLen: 5,
@@ -73,14 +74,16 @@ export default {
       scrollLeft: 0,
       events: ['resize', 'orientationchange'],
       orientation: '', // portrait 竖屏，landscape 横屏
-      fold: true // 是否折叠
+      fold: false, // 是否折叠, 默认展开
+      showFoldIcon: true // mobile 视频点图标
     }
   },
   props: {
     vm: Object,
     wrapClick: Function,
     customEvent: Object,
-    list: Array
+    list: Array,
+    show: Boolean
   },
   filters: {
     formatSecond (second) {
@@ -117,6 +120,10 @@ export default {
       },
       immediate: true,
       deep: true
+    },
+    show (val) {
+      this.showVideoPoint = val
+      this.fold = !val
     }
   },
   computed: {
@@ -144,16 +151,18 @@ export default {
     this.reset()
   },
   methods: {
-    show () {
+    open () {
       if (this.isMobile) {
+        this.showVideoPoint = true
         this.fold = true
       } else {
         this.showVideoPoint = true
       }
     },
 
-    hide () {
+    close () {
       if (this.isMobile) {
+        this.showVideoPoint = false
         this.fold = false
       } else {
         this.showVideoPoint = false
@@ -268,6 +277,7 @@ export default {
     // 展开知识点
     toggleFold (status) {
       this.fold = status
+      this.showVideoPoint = !status
     },
 
     // 校验是否为手机端
@@ -327,10 +337,20 @@ export default {
     },
 
     // 设置视频播放器视频点图标显示状态
+    // mobile： 隐藏pc视频点图标
+    // pc：依据showVideoPoint设置pc视频点图标的状态
     setVideoPointStatus () {
       this.vm.hideVideoPointIcon = this.checkMobile()
-    }
+      this.vm.showVideoPoint = this.showVideoPoint
+    },
 
+    // mobile 视频点图标状态
+    setIconStatus (status) {
+      // 折叠状态下， 随视频进度条显隐
+      if (this.fold) {
+        this.showFoldIcon = status
+      }
+    }
   }
 }
 </script>
