@@ -63,19 +63,35 @@ export default {
   },
   computed: {
     extensions () {
-      return [{ 
+      let arr = []
+      // if (this.list && this.list.length) {
+      //   arr.push({
+      //     com: VideoPoint, 
+      //     name: 'video-point',
+      //     customEvent: { 
+      //       clickPrev: this.clickPrev,
+      //       clickNext: this.clickNext,
+      //       clickItem: this.clickItem
+      //     } 
+      //   })
+      // }
+
+      arr.push({
         com: VideoPoint, 
-        name: 'video-point', 
+        name: 'video-point',
         customEvent: { 
           clickPrev: this.clickPrev,
           clickNext: this.clickNext,
           clickItem: this.clickItem
         } 
-      }]
+      })
+
+      return arr
     }
   },
   created () {
     this.videoConfig = {
+      autoPlay: false,
       title: '视频标题',
       points: [
         {seconds: 20, desc: '剧情提示'},
@@ -134,6 +150,7 @@ export default {
       enableWebFullScreen: true, // 开启网页全屏控制按钮功能，默认 true 打开
       primaryColor: '#5C86FF' // 播放器主题色（默认 #FA8919）
     }
+    this.list = []
   },
   mounted () {
     this.$refs.playerEle.init(this.videoConfig)

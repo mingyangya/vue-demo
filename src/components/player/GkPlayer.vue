@@ -1159,13 +1159,17 @@ export default {
       this.showVideoPoint = status
     },
 
+    setVideoPointIcon (status) {
+      this.hideVideoPointIcon = status
+    },
+
     // mobile下控制视频点图标的显隐
     setIconStatus (status) {
       this.$nextTick(() => {
         let ele = this.$refs[this.videoPointKey]
         ele = ele && ele[0]
 
-        ele.setIconStatus(status)
+        ele && ele.setIconStatus(status)
       })
     },
 

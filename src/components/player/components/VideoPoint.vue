@@ -1,5 +1,5 @@
 <template>
-  <div :class="['video-point', {'video-point-mobile': isMobile, hide: !this.showVideoPoint}, orientation]" :orientation="orientation">
+  <div :class="['video-point', {'video-point-mobile': isMobile, hide: !this.showVideoPoint}, orientation]" :orientation="orientation" v-if="this.points && this.points.length">
     <template v-if="!isMobile">
       <div class="video-point-container" v-if="showVideoPoint">
         <slot name="prefix">
@@ -115,7 +115,7 @@ export default {
           this.points = list.map((item, i, arr) => Object.assign({}, item, { period: [item.seconds, i < listLen - 1 ? arr[i + 1].seconds : item.seconds]}))
         } else {
           this.points = []
-          this.hide()
+          this.clear()
         }
       },
       immediate: true,
@@ -167,6 +167,11 @@ export default {
       } else {
         this.showVideoPoint = false
       }
+    },
+
+    // 列表数据为空, 隐藏知识点图标
+    clear () {
+      this.vm.setVideoPointIcon(true)
     },
 
     init () {
@@ -340,7 +345,11 @@ export default {
     // mobile： 隐藏pc视频点图标
     // pc：依据showVideoPoint设置pc视频点图标的状态
     setVideoPointStatus () {
-      this.vm.hideVideoPointIcon = this.checkMobile()
+      if (this.points && this.points.length) {
+        this.vm.setVideoPointIcon(this.checkMobile())
+      } else {
+        this.vm.setVideoPointIcon(true)
+      }
       this.vm.showVideoPoint = this.showVideoPoint
     },
 
