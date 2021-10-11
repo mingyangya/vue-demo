@@ -2,7 +2,7 @@
   <div
     :class="[$style.wrap, {[$style.userInActive]: isUserInActive}, {[$style.full]: isWebFullScreen}]"
     ref="playerWrap"
-    @mouseenter="mouseMoveHandler"
+    @mousemove="mouseMoveHandler"
     @click="videoClick">
     <div :class="$style.videoWrap" ref="videoWrap">
       <template v-if="options">
@@ -849,6 +849,8 @@ export default {
     toggleWebFullScreen () {
       if (this.isFullScreen()) {
         this.cancelFullScreen()
+      } else {
+        this.videoPointFun('resize')
       }
       this.isWebFullScreen = !this.isWebFullScreen
       this.emit('webFullScreenStatus', this.isWebFullScreen)
@@ -874,6 +876,9 @@ export default {
       this.thumbTime = utils.secondToTime(percentage * this.player.video.duration)
       this.seek(percentage * this.player.video.duration)
       this.isShowTouchTime = false
+
+      // 拖拽进度条，更新视频点选中位置
+      this.videoPointFun('moveItem', percentage * this.player.video.duration)
     },
     dragStart () {
       document.addEventListener(utils.nameMap.dragMove, this.thumbMove)
@@ -1080,6 +1085,8 @@ export default {
 
         if (this.playedSeconds && this.player.duration - this.playedSeconds > 30) {
           this.seek(this.playedSeconds)
+
+          this.videoPointPlaySecond(this.playedSeconds)
         }
       }
     },
@@ -1163,14 +1170,31 @@ export default {
       this.hideVideoPointIcon = status
     },
 
-    // mobile下控制视频点图标的显隐
-    setIconStatus (status) {
+    videoPointFun (fun, args) {
       this.$nextTick(() => {
         let ele = this.$refs[this.videoPointKey]
         ele = ele && ele[0]
 
-        ele && ele.setIconStatus(status)
+        if (ele && ele[fun]) {
+          Array.isArray(args) ? ele[fun](...args) : (args ? ele[fun](args) : ele[fun]())
+        }
       })
+    },
+
+    // 初始化视频点上次的播放进度
+    videoPointPlaySecond (second) {
+      this.videoPointFun('moveItem', second)
+    },
+
+    // mobile下控制视频点图标的显隐
+    setIconStatus (status) {
+      // this.$nextTick(() => {
+      //   let ele = this.$refs[this.videoPointKey]
+      //   ele = ele && ele[0]
+
+      //   ele && ele.setIconStatus(status)
+      // })
+      this.videoPointFun('setIconStatus', status)
     },
 
     videoPointClick (time) {

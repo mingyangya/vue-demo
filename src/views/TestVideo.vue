@@ -150,7 +150,7 @@ export default {
       enableWebFullScreen: true, // 开启网页全屏控制按钮功能，默认 true 打开
       primaryColor: '#5C86FF' // 播放器主题色（默认 #FA8919）
     }
-    this.list = []
+    // this.list = []
   },
   mounted () {
     this.$refs.playerEle.init(this.videoConfig)

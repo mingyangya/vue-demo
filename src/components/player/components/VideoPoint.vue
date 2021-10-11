@@ -1,5 +1,5 @@
 <template>
-  <div :class="['video-point', {'video-point-mobile': isMobile, hide: !this.showVideoPoint}, orientation]" :orientation="orientation" v-if="this.points && this.points.length">
+  <div :class="['video-point', {'video-point-mobile': isMobile, hide: !this.showVideoPoint}, orientation]" :orientation="orientation" v-if="this.points && this.points.length" @click.stop="">
     <template v-if="!isMobile">
       <div class="video-point-container" v-if="showVideoPoint">
         <slot name="prefix">
@@ -75,7 +75,11 @@ export default {
       events: ['resize', 'orientationchange'],
       orientation: '', // portrait 竖屏，landscape 横屏
       fold: false, // 是否折叠, 默认展开
-      showFoldIcon: true // mobile 视频点图标
+      showFoldIcon: true, // mobile 视频点图标
+      scrollDistance: 0,
+      scrollMax: 0,
+      ulWidth: 0,
+      nextScroll: 0 // 下次滚动的距离
     }
   },
   props: {
@@ -112,7 +116,7 @@ export default {
       handler (list) {
         if (list && list.length) {
           const listLen = list.length
-          this.points = list.map((item, i, arr) => Object.assign({}, item, { period: [item.seconds, i < listLen - 1 ? arr[i + 1].seconds : item.seconds]}))
+          this.points = list.map((item, i, arr) => Object.assign({}, item, { period: [item.seconds, i < listLen - 1 ? arr[i + 1].seconds : this.endTime]}))
         } else {
           this.points = []
           this.clear()
@@ -127,21 +131,12 @@ export default {
     }
   },
   computed: {
-    ulWidth () {
-      return this.$refs.ulEle.clientWidth
-    },
     // 每项的宽度占比，例如 20%， 30%，返回值为float类型的两位小数
     liWidth () {
-      return (100 / parseFloat(this.showLen)).toFixed(2)
+      return parseFloat((100 / parseFloat(this.showLen)).toFixed(2))
     },
-    // 滑动的最大值
-    scroolMax () {
-      const totalWidth = ((this.points && this.points.length - this.showLen) || 0) * Math.round(this.ulWidth * this.liWidth / 100)
-      return totalWidth
-    },
-    // 每次滑动的距离
-    scrollDistance () {
-      return Math.round(this.ulWidth * this.liWidth / 100)
+    endTime () {
+      return this.vm.player.duration || Number.MAX_VALUE
     }
   },
   created () {
@@ -179,7 +174,35 @@ export default {
       this.checkMobile()
       this.orientationChange()
       this.setShowLen()
-      this.setVideoPointStatus()
+      this.initSize()
+    },
+
+    // 计算滑动的距离，滑动区域的宽度，更新激活视频点的位置
+    initSize () {
+      this.$nextTick(() => {
+        this.ulWidth = this.getUlWidth()
+        this.scrollDistance = this.getScrollDistance()
+        this.scrollMax = this.getScroolMax()
+
+        this.moveItem(this.currentTime)
+        this.setVideoPointStatus()
+      })
+    },
+
+    // 视频点区域宽度
+    getUlWidth () {
+      return this.$refs.ulEle.clientWidth
+    },
+
+    // 滑动的最大值
+    getScroolMax () {
+      const totalWidth = ((this.points && this.points.length - this.showLen) || 0) * Math.round(this.ulWidth * this.liWidth / 100)
+      return totalWidth
+    },
+
+    // 每次滑动的距离
+    getScrollDistance () {
+      return Math.round(this.ulWidth * parseFloat(this.liWidth) / 100)
     },
 
     clickItem ({ seconds }) {
@@ -201,7 +224,6 @@ export default {
     clickNext () {
       const distance = this.scrollLeft + this.scrollDistance
 
-      console.log(this.scrollLeft, this.scroolMax)
       if (this.scrollLeft !== this.scroolMax) {
         this.scrollTo(distance > this.scroolMax ? this.scroolMax : distance)
       }
@@ -214,32 +236,37 @@ export default {
     },
 
     timeupdate (time) {
+      console.log('time', time)
       // 视频正在播放的时间点 在视频点列表中的索引
-      const index = this.points && this.points.findIndex(item => item.seconds === time)
+      const index = this.points && this.points.findIndex(item => time === item.seconds)
 
       // 在时间点范围内
       if (index !== -1) {
-        // 在0 - this.showLen个视频点子项间，如果有滑动距离，则设置为 0
-        if (index > 0 && index <= this.showLen - 1) {
-          this.scrollTo(0)
-        } else if (index > this.showLen - 1) {
-          // 超过this.showLen后 每次移动一个子项的距离
-          const distance = (index + 1 - this.showLen) * this.scrollDistance
-          this.scrollTo(distance)
-        }
+        const distance = index * this.scrollDistance
+        console.log('scroll:', {index, distance, scrollLeft: this.scrollLeft})
+        this.scrollTo(distance)
+      }
+    },
+
+    // 激活时间点（time）所处的项，并移动视频点的到相对位置
+    moveItem (time) {
+      // 视频正在播放的时间点 在视频点所处区间的索引
+      const index = this.points && this.points.findIndex(item => (time >= item.period[0] && time < item.period[1]))
+      const distance = index * this.scrollDistance
+      if (index !== -1) {
+        this.scrollTo(distance)
       }
     },
 
     scrollTo (distance) {
-      this.$nextTick(() => {
-        const ulEle = this.$refs.ulEle
-        const style = window.getComputedStyle(ulEle)
-        if (style && style.scrollBehavior) {
-          ulEle.scrollLeft = distance
-        } else {
-          this.scrollSmoothTo(distance)
-        }
-      })
+      const ulEle = this.$refs.ulEle
+      const style = window.getComputedStyle(ulEle)
+      this.scrollLeft = distance
+      if (style && style.scrollBehavior) {
+        ulEle.scrollLeft = distance
+      } else {
+        this.scrollSmoothTo(distance)
+      }
     },
 
     reset () {
@@ -287,7 +314,7 @@ export default {
 
     // 校验是否为手机端
     checkMobile () {
-      this.isMobile = utils.isMobile || document.body.clientWidth <= 768
+      this.isMobile = utils.isMobile
       return this.isMobile
     },
 
@@ -302,10 +329,11 @@ export default {
     },
 
     resize () {
+      console.log('resize')
       return utils.throttle(() => {
         this.checkMobile()
         this.setShowLen()
-        this.setVideoPointStatus()
+        this.initSize()
       })()
     },
 
@@ -403,12 +431,14 @@ ul {
   overflow-y: hidden;
   transition: all .3s;
   scroll-behavior: smooth;
+  scrollbar-width: none; // 不显示滚动条,兼容火狐
 
   &::-webkit-scrollbar {
     width: 0;
     height: 0;
     opacity: 0;
   }
+
 }
 
 li {
