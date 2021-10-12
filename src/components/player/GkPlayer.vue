@@ -831,7 +831,7 @@ export default {
     closePictureInPicture () {
       // 是否开启了画中画
       if (this.pictureInPictureEnabled && document.pictureInPictureElement) {
-        document.exitPictureInPicture().finally()
+        document.exitPictureInPicture()
       }
     },
     toggleVolume () {
