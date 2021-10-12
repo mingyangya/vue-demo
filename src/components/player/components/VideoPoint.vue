@@ -76,8 +76,8 @@ export default {
       orientation: '', // portrait 竖屏，landscape 横屏
       fold: false, // 是否折叠, 默认展开
       showFoldIcon: true, // mobile 视频点图标
-      scrollDistance: 0,
-      scrollMax: 0,
+      scrollDistance: 0, // 每次滚动的间隔
+      scrollMax: 0, // 可滚动的最大距离
       ulWidth: 0,
       nextScroll: 0 // 下次滚动的距离
     }
@@ -90,6 +90,7 @@ export default {
     show: Boolean
   },
   filters: {
+    // s（秒）转化为hh（时）:mm（分）:ss（秒）
     formatSecond (second) {
       const add0 = num => (num < 10 ? '0' + num : '' + num)
       const hour = Math.floor(second / 3600)
@@ -194,15 +195,21 @@ export default {
       return this.$refs.ulEle.clientWidth
     },
 
-    // 滑动的最大值
-    getScroolMax () {
-      const totalWidth = ((this.points && this.points.length - this.showLen) || 0) * Math.round(this.ulWidth * this.liWidth / 100)
-      return totalWidth
-    },
-
     // 每次滑动的距离
     getScrollDistance () {
-      return Math.round(this.ulWidth * parseFloat(this.liWidth) / 100)
+      return Math.round(parseFloat(this.ulWidth) / this.showLen)
+    },
+
+    // 滑动的最大值
+    getScroolMax () {
+      const len = this.points.length
+      let totalWidth = 0
+      if (len >= 0 && len <= this.showLen) {
+        totalWidth = 0
+      } else {
+        totalWidth = (len - this.showLen) * this.scrollDistance
+      }
+      return totalWidth
     },
 
     clickItem ({ seconds }) {
@@ -213,9 +220,8 @@ export default {
 
     clickPrev () {
       const distance = this.scrollLeft - this.scrollDistance
-
       if (this.scrollLeft !== 0) {
-        this.scrollTo(distance > 0 ? distance : 0)
+        this.scrollTo(distance)
       }
 
       this.customEvent && this.customEvent.clickPrev && this.customEvent.clickPrev()
@@ -223,9 +229,8 @@ export default {
 
     clickNext () {
       const distance = this.scrollLeft + this.scrollDistance
-
       if (this.scrollLeft !== this.scroolMax) {
-        this.scrollTo(distance > this.scroolMax ? this.scroolMax : distance)
+        this.scrollTo(distance)
       }
 
       this.customEvent && this.customEvent.clickNext && this.customEvent.clickNext()
@@ -236,15 +241,16 @@ export default {
     },
 
     timeupdate (time) {
-      console.log('time', time)
       // 视频正在播放的时间点 在视频点列表中的索引
       const index = this.points && this.points.findIndex(item => time === item.seconds)
 
       // 在时间点范围内
       if (index !== -1) {
         const distance = index * this.scrollDistance
-        console.log('scroll:', {index, distance, scrollLeft: this.scrollLeft})
-        this.scrollTo(distance)
+        if (this.scrollLeft !== distance) { // 同一秒内，仅触发一次
+          console.log('scroll:', {time, index, distance, scrollLeft: this.scrollLeft})
+          this.scrollTo(distance)
+        }
       }
     },
 
@@ -259,13 +265,14 @@ export default {
     },
 
     scrollTo (distance) {
+      const _distance = distance > this.scroolMax ? this.scroolMax : (distance > 0 ? distance : 0)
       const ulEle = this.$refs.ulEle
       const style = window.getComputedStyle(ulEle)
-      this.scrollLeft = distance
+      this.scrollLeft = _distance
       if (style && style.scrollBehavior) {
-        ulEle.scrollLeft = distance
+        ulEle.scrollLeft = _distance
       } else {
-        this.scrollSmoothTo(distance)
+        this.scrollSmoothTo(_distance)
       }
     },
 
@@ -286,7 +293,7 @@ export default {
       }
 
       const ulEle = this.$refs.ulEle
-      // 当前滚动高度
+      // 当前滚动距离
       let scrollLeft = this.scrollLeft
 
       // 滚动step方法
@@ -329,7 +336,6 @@ export default {
     },
 
     resize () {
-      console.log('resize')
       return utils.throttle(() => {
         this.checkMobile()
         this.setShowLen()
@@ -341,12 +347,12 @@ export default {
     orientationChange () {
       let result = ''
       switch (window.orientation) {
-        // 横屏
+        // 竖屏
         case 180:
         case 0:
           result = 'portrait'
           break
-        // 竖屏
+        // 横屏
         case 90:
         case -90:
           result = 'landscape'
