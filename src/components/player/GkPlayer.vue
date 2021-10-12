@@ -829,8 +829,9 @@ export default {
       }
     },
     closePictureInPicture () {
-      if (this.pictureInPictureEnabled) {
-        document.exitPictureInPicture()
+      // 是否开启了画中画
+      if (this.pictureInPictureEnabled && document.pictureInPictureElement) {
+        document.exitPictureInPicture().finally()
       }
     },
     toggleVolume () {
