@@ -6,9 +6,11 @@
           <span class="icon icon-prev" @click.stop="clickPrev"></span>
         </slot>
 
-        <ul class="list video-point-list" @scroll="scroll" ref="ulEle">
-          <li v-for="(item, i) in points" :key="i" @click.stop="clickItem(item)" :class="{ 'paused' : vm.paused, 'active': (currentTime >= item.period[0]) && (currentTime < item.period[1])}" :style="{'width': liWidth + '%' }">{{item.seconds | formatSecond}} {{item.desc}}</li>
-        </ul>
+        <div class="ul-wrap">
+          <ul class="list video-point-list" @scroll="scroll" ref="ulEle">
+            <li v-for="(item, i) in points" :key="i" @click.stop="clickItem(item)" :class="{ 'paused' : vm.paused, 'active': (currentTime >= item.period[0]) && (currentTime < item.period[1])}" :style="{'width': liWidth + '%' }">{{item.seconds | formatSecond}} {{item.desc}}</li>
+          </ul>
+        </div>
 
         <slot name="suffix">
           <span class="icon icon-next" @click.stop="clickNext"></span>
@@ -50,9 +52,11 @@
           </template>
         </slot>
 
-        <ul class="list video-point-list" @scroll="scroll" ref="ulEle" v-if="showVideoPoint">
-          <li v-for="(item, i) in points" :key="i" @click.stop="clickItem(item)" :class="{ 'paused' : vm.paused, 'active': (currentTime >= item.period[0]) && (currentTime < item.period[1])}" :style="{'width': liWidth + '%' }">{{item.seconds | formatSecond}} {{item.desc}}</li>
-        </ul>
+        <div class="ul-wrap">
+          <ul class="list video-point-list" @scroll="scroll" ref="ulEle">
+            <li v-for="(item, i) in points" :key="i" @click.stop="clickItem(item)" :class="{ 'paused' : vm.paused, 'active': (currentTime >= item.period[0]) && (currentTime < item.period[1])}" :style="{'width': liWidth + '%' }">{{item.seconds | formatSecond}} {{item.desc}}</li>
+          </ul>
+        </div>
 
         <slot name="suffix"></slot>
       </div>
@@ -129,6 +133,8 @@ export default {
     show (val) {
       this.showVideoPoint = val
       this.fold = !val
+      // 视频点展开，处理初始状态
+      val && this.initSize()
     }
   },
   computed: {
@@ -220,6 +226,7 @@ export default {
 
     clickPrev () {
       const distance = this.scrollLeft - this.scrollDistance
+
       if (this.scrollLeft !== 0) {
         this.scrollTo(distance)
       }
@@ -229,7 +236,7 @@ export default {
 
     clickNext () {
       const distance = this.scrollLeft + this.scrollDistance
-      if (this.scrollLeft !== this.scroolMax) {
+      if (this.scrollLeft !== this.scrollMax) {
         this.scrollTo(distance)
       }
 
@@ -265,7 +272,8 @@ export default {
     },
 
     scrollTo (distance) {
-      const _distance = distance > this.scroolMax ? this.scroolMax : (distance > 0 ? distance : 0)
+      const _distance = distance >= this.scrollMax ? this.scrollMax : (distance > 0 ? distance : 0)
+      console.log('distance:', _distance, this.scrollMax)
       const ulEle = this.$refs.ulEle
       const style = window.getComputedStyle(ulEle)
       this.scrollLeft = _distance
@@ -337,9 +345,11 @@ export default {
 
     resize () {
       return utils.throttle(() => {
-        this.checkMobile()
-        this.setShowLen()
-        this.initSize()
+        if (this.showVideoPoint) {
+          this.checkMobile()
+          this.setShowLen()
+          this.initSize()
+        }
       })()
     },
 
@@ -366,12 +376,18 @@ export default {
 
     // 设置显示知识点的个数
     setShowLen () {
-      if (document.body.clientWidth <= 768 || this.isMobile) {
-        // 小屏, 横屏5个，竖屏3个
-        this.showLen = this.orientation === 'landscape' ? 5 : 3
-      } else {
+      console.log('this', this.vm.isFullScreen())
+      if (this.vm.isFullScreen()) {
+        // 全屏5个
         this.showLen = 5
-        // 大屏
+      } else {
+        if (document.body.clientWidth <= 768 || this.isMobile) {
+          // 小屏, 横屏3个，竖屏4个
+          this.showLen = this.orientation === 'landscape' ? 3 : 4
+        } else {
+          // 大屏
+          this.showLen = 4
+        }
       }
     },
 
@@ -422,17 +438,24 @@ $h: 58px;
   height: 100%;
 }
 
-ul {
+.ul-wrap {
+  width: 0;
+  height: 100%;
   box-sizing: border-box;
-  display: inline-flex;
-  flex-wrap: nowrap;
   flex: 1;
   flex-shrink: 0;
-  height: 100%;
-  padding: 12px 0;
-  border-radius: 4px;
+  padding: 0 10px;
   border: 1px solid #49474E;
   background: rgba(15, 15, 15, .8);
+  border-radius: 4px;
+}
+
+ul {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: nowrap;
+  height: 100%;
+  padding: 12px 0;
   overflow-x: auto;
   overflow-y: hidden;
   transition: all .3s;
@@ -453,13 +476,14 @@ li {
   display: inline-flex;
   flex-shrink: 0;
   width: 20%;
-  padding: 0 7px 0 27px;
+  padding: 0 7px 0 23px;
   font-size: 12px;
   line-height: 16px;
   color: #fff;
   text-align: left;
   cursor: pointer;
   overflow: hidden;
+  word-break: break-all;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   /* autoprefixer: ignore next */
@@ -484,7 +508,7 @@ li {
     width: 1px;
     height: 20px;
     transform: translateY(-50%);
-    background: #C2C2C2;
+    background: rgba(194, 194, 194, .6);
   }
 
   &:last-child {
@@ -497,10 +521,10 @@ li {
     color: #FA8919;
 
     &:before {
-      top: -1px;
-      left: 5px;
-      width: 16px;
-      height: 19px;
+      top: 1px;
+      left: 8px;
+      width: 8px;
+      height: 9.5px;
       background: url('../image/i-runing.gif') no-repeat center / 100% auto transparent;
       border-radius: 0;
     }
@@ -509,12 +533,12 @@ li {
       &:before {
         content: '';
         position: absolute;
-        top: 5px;
-        left: 13px;
-        width: 5px;
-        height: 5px;
-        background: #FA8919;
-        border-radius: 50%;
+        top: 3px;
+        left: 9px;
+        width: 8px;
+        height: 8px;
+        background: url('../image/i-pause.png') no-repeat center / 100% auto transparent;
+        border-radius: 0;
       }
     }
 
@@ -650,6 +674,8 @@ li {
 }
 
 .video-point-mobile {
+  height: 48px;
+  bottom: 41px;
 
   &.hide {
     display: block;
