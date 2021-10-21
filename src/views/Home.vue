@@ -17,6 +17,12 @@ export default {
       menuList: [{
         name: '查看大图',
         path: '/zoom-img'
+      }, {
+        name: '测试',
+        path: '/test'
+      }, {
+        name: 'animation',
+        path: '/animation'
       }]
     }
   }

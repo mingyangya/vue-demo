@@ -24,7 +24,7 @@ export default {
       return VideoPoint
     }
   },
-  mounted ( ) {
+  mounted () {
     let a = utils.foo()
     console.log(a)
   },
