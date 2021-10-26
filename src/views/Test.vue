@@ -30,6 +30,13 @@ export default {
   components: {
   },
   computed: {
+    VideoPoint () {
+      return VideoPoint
+    }
+  },
+  mounted () {
+    let a = utils.foo()
+    console.log(a)
   },
   methods: {
     videoPointClick () {
