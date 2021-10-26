@@ -20,11 +20,13 @@ const utils = {
    * control play progress
    */
   // get element's view position
-  getElementViewLeft: element => {
+  // rootEle 根结点 fix全屏下，计算offsetLeft时需要计算到当前全屏窗口的根元素，不需要计算到根结点null
+  getElementViewLeft: (element, rootEle = null) => {
     let actualLeft = element.offsetLeft
     let current = element.offsetParent
     const elementScrollLeft =
       document.body.scrollLeft + document.documentElement.scrollLeft
+    let left = 0
     if (
       !document.fullscreenElement &&
       !document.mozFullScreenElement &&
@@ -34,13 +36,16 @@ const utils = {
         actualLeft += current.offsetLeft
         current = current.offsetParent
       }
+      left = actualLeft - elementScrollLeft
     } else {
-      while (current !== null && current !== element) {
+      while (current !== rootEle && current !== element) {
+        console.log({current, offsetLeft: current.offsetLeft, element})
         actualLeft += current.offsetLeft
         current = current.offsetParent
       }
+      left = actualLeft - elementScrollLeft
     }
-    return actualLeft - elementScrollLeft
+    return left
   },
 
   /**

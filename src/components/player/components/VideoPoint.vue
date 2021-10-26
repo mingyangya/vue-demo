@@ -1,64 +1,68 @@
 <template>
-  <div :class="['video-point', {'video-point-mobile': isMobile, hide: !this.showVideoPoint}, orientation]" :orientation="orientation" v-if="this.points && this.points.length" @click.stop="">
+  <div :class="['video-point', {'video-point-mobile': isMobile, hide: !this.showVideoPoint && !isMobile}, orientation]" :orientation="orientation" v-if="this.points && this.points.length" @click.stop="">
     <template v-if="!isMobile">
       <div class="video-point-container" v-if="showVideoPoint">
-        <slot name="prefix">
-          <span class="icon icon-prev" @click.stop="clickPrev"></span>
-        </slot>
+        <div :class="['ul-wrap', {'ul-wrap-min': !showSwitchBtn}]">
+          <slot name="prefix">
+            <span class="icon icon-prev" @click.stop="clickPrev" v-if="showSwitchBtn"></span>
+          </slot>
 
-        <div class="ul-wrap">
-          <ul class="list video-point-list" @scroll="scroll" ref="ulEle">
-            <li v-for="(item, i) in points" :key="i" @click.stop="clickItem(item)" :class="{ 'paused' : vm.paused, 'active': (currentTime >= item.period[0]) && (currentTime < item.period[1])}" :style="{'width': liWidth + '%' }">{{item.seconds | formatSecond}} {{item.desc}}</li>
+          <ul class="list video-point-list" @scroll="scroll" ref="ulEle" :style="ulStyle" >
+            <li v-for="(item, i) in points" :key="i" @click.stop="clickItem(item)" :class="{ 'paused' : vm.paused, 'active': (currentTime >= item.period[0]) && (currentTime < item.period[1])}" :style="{'width': liWidth + 'px' }">{{item.seconds | formatSecond}} {{item.desc}}</li>
           </ul>
-        </div>
 
-        <slot name="suffix">
-          <span class="icon icon-next" @click.stop="clickNext"></span>
-        </slot>
+          <slot name="suffix">
+            <span class="icon icon-next" @click.stop="clickNext" v-if="showSwitchBtn"></span>
+          </slot>
+        </div>
       </div>
     </template>
 
     <template v-else>
       <div class="video-point-container">
-        <slot name="prefix">
-          <!-- 折叠 -->
-          <template v-if="fold">
-            <div :class="['fold-area', orientation]" @click.stop="toggleFold(false)" v-show="showFoldIcon">
-              <!-- 横屏 -->
-              <template v-if="orientation === 'landscape'">
-                <div class="icon-book"></div>
-                <div class="landscape-fold-area-text">知识点</div>
-              </template>
 
-              <template v-else>
-                <div class="fold-area-text">知识点</div>
-                <div class="icon icon-next"></div>
-              </template>
-            </div>
-          </template>
+        <div :class="['ul-wrap', {'ul-wrap-hide': !showVideoPoint, 'ul-wrap-hide-landscape': (orientation === 'landscape') && !showVideoPoint}]">
+          <!-- 前缀 -->
+          <slot name="prefix">
+            <!-- 折叠 -->
+            <template v-if="fold">
+              <div :class="['fold-area', orientation]" @click.stop="toggleFold(false)" v-show="showFoldIcon">
+                <!-- 横屏 -->
+                <template v-if="orientation === 'landscape'">
+                  <div class="icon-book"></div>
+                  <div class="landscape-fold-area-text">知识点</div>
+                  <div class="icon icon-next"></div>
+                </template>
 
-          <template v-else>
-            <div :class="['unfold-area', orientation]" @click.stop="toggleFold(true)" v-show="showFoldIcon">
-              <template v-if="orientation === 'landscape'">
-                <div class="icon-book"></div>
-                <div class="landscape-unfold-area-text">知识点</div>
-              </template>
+                <template v-else>
+                  <div class="fold-area-text">知识点</div>
+                  <div class="icon icon-next"></div>
+                </template>
+              </div>
+            </template>
 
-              <template v-else>
-                <div class="unfold-area-text">知识点</div>
-              </template>
+            <template v-else>
+              <div :class="['unfold-area', orientation]" @click.stop="toggleFold(true)" v-show="showFoldIcon">
+                <template v-if="orientation === 'landscape'">
+                  <div class="icon-book"></div>
+                  <div class="landscape-unfold-area-text">知识点</div>
+                </template>
 
-            </div>
-          </template>
-        </slot>
+                <template v-else>
+                  <div class="unfold-area-text">知识点</div>
+                </template>
 
-        <div class="ul-wrap">
-          <ul class="list video-point-list" @scroll="scroll" ref="ulEle">
-            <li v-for="(item, i) in points" :key="i" @click.stop="clickItem(item)" :class="{ 'paused' : vm.paused, 'active': (currentTime >= item.period[0]) && (currentTime < item.period[1])}" :style="{'width': liWidth + '%' }">{{item.seconds | formatSecond}} {{item.desc}}</li>
+              </div>
+            </template>
+          </slot>
+
+          <ul class="list video-point-list mobile-list" @scroll="scroll" ref="ulEle" :style="ulStyle" v-if="showVideoPoint">
+            <li v-for="(item, i) in points" :key="i" @click.stop="clickItem(item)" :class="{ 'paused' : vm.paused, 'active': (currentTime >= item.period[0]) && (currentTime < item.period[1])}" :style="{'width': liWidth + 'px' }">{{item.seconds | formatSecond}} {{item.desc}}</li>
           </ul>
-        </div>
 
-        <slot name="suffix"></slot>
+          <!-- 后缀 -->
+          <slot name="suffix"></slot>
+        </div>
       </div>
     </template>
   </div>
@@ -73,17 +77,18 @@ export default {
       isMobile: false,
       showVideoPoint: true,
       points: [],
-      showLen: 5,
       currentTime: 0,
+      liWidth: 142, // 每项的宽度
       scrollLeft: 0,
       events: ['resize', 'orientationchange'],
       orientation: '', // portrait 竖屏，landscape 横屏
       fold: false, // 是否折叠, 默认展开
       showFoldIcon: true, // mobile 视频点图标
-      scrollDistance: 0, // 每次滚动的间隔
       scrollMax: 0, // 可滚动的最大距离
       ulWidth: 0,
-      nextScroll: 0 // 下次滚动的距离
+      nextScroll: 0, // 下次滚动的距离
+      isTranslation: true,
+      currentIndex: -1
     }
   },
   props: {
@@ -106,9 +111,9 @@ export default {
   watch: {
     'vm.current': {
       handler (time) {
+        this.currentTime = Math.floor(time)
         // 组件不渲染，不处理视频进度
         if (this.showVideoPoint) {
-          this.currentTime = Math.floor(time)
           // 处理激活项的位置
           this.$nextTick(() => {
             this.timeupdate(this.currentTime)
@@ -121,7 +126,7 @@ export default {
       handler (list) {
         if (list && list.length) {
           const listLen = list.length
-          this.points = list.map((item, i, arr) => Object.assign({}, item, { period: [item.seconds, i < listLen - 1 ? arr[i + 1].seconds : this.endTime]}))
+          this.points = list.map((item, i, arr) => Object.assign({}, item, {period: [item.seconds, i < listLen - 1 ? arr[i + 1].seconds : this.endTime]}))
         } else {
           this.points = []
           this.clear()
@@ -134,16 +139,26 @@ export default {
       this.showVideoPoint = val
       this.fold = !val
       // 视频点展开，处理初始状态
-      val && this.initSize()
+      if (val) {
+        this.initSize()
+        this.toggleTranslation(false)
+      }
     }
   },
   computed: {
-    // 每项的宽度占比，例如 20%， 30%，返回值为float类型的两位小数
-    liWidth () {
-      return parseFloat((100 / parseFloat(this.showLen)).toFixed(2))
+    // 每次滑动的距离
+    scrollDistance () {
+      return this.liWidth
     },
     endTime () {
       return this.vm.player.duration || Number.MAX_VALUE
+    },
+    ulStyle () {
+      return this.isTranslation ? {'scroll-behavior': 'smooth'} : {}
+    },
+    showSwitchBtn () {
+      const pointsLen = this.points.length
+      return pointsLen > 0 ? this.liWidth * pointsLen > this.ulWidth : false
     }
   },
   created () {
@@ -180,57 +195,46 @@ export default {
       this.addEvents()
       this.checkMobile()
       this.orientationChange()
-      this.setShowLen()
       this.initSize()
     },
 
     // 计算滑动的距离，滑动区域的宽度，更新激活视频点的位置
     initSize () {
-      this.$nextTick(() => {
-        this.ulWidth = this.getUlWidth()
-        this.scrollDistance = this.getScrollDistance()
-        this.scrollMax = this.getScroolMax()
-
-        this.moveItem(this.currentTime)
+      setTimeout(() => {
+        if (this.showVideoPoint) {
+          this.ulWidth = this.getUlWidth()
+          this.scrollMax = this.getScroolMax()
+          this.moveItem(this.currentTime)
+        }
         this.setVideoPointStatus()
       })
     },
 
     // 视频点区域宽度
     getUlWidth () {
-      return this.$refs.ulEle.clientWidth
-    },
-
-    // 每次滑动的距离
-    getScrollDistance () {
-      return Math.round(parseFloat(this.ulWidth) / this.showLen)
+      return this.$refs.ulEle && this.$refs.ulEle.clientWidth
     },
 
     // 滑动的最大值
     getScroolMax () {
       const len = this.points.length
-      let totalWidth = 0
-      if (len >= 0 && len <= this.showLen) {
-        totalWidth = 0
-      } else {
-        totalWidth = (len - this.showLen) * this.scrollDistance
-      }
+      let totalWidth = len * this.liWidth - this.ulWidth
+
+      totalWidth = totalWidth >= 0 ? totalWidth : 0
+
       return totalWidth
     },
 
     clickItem ({ seconds }) {
       this.vm.videoPointClick(seconds)
-
       this.customEvent && this.customEvent.clickItem && this.customEvent.clickItem()
     },
 
     clickPrev () {
       const distance = this.scrollLeft - this.scrollDistance
-
       if (this.scrollLeft !== 0) {
         this.scrollTo(distance)
       }
-
       this.customEvent && this.customEvent.clickPrev && this.customEvent.clickPrev()
     },
 
@@ -239,7 +243,6 @@ export default {
       if (this.scrollLeft !== this.scrollMax) {
         this.scrollTo(distance)
       }
-
       this.customEvent && this.customEvent.clickNext && this.customEvent.clickNext()
     },
 
@@ -250,14 +253,9 @@ export default {
     timeupdate (time) {
       // 视频正在播放的时间点 在视频点列表中的索引
       const index = this.points && this.points.findIndex(item => time === item.seconds)
-
-      // 在时间点范围内
-      if (index !== -1) {
-        const distance = index * this.scrollDistance
-        if (this.scrollLeft !== distance) { // 同一秒内，仅触发一次
-          console.log('scroll:', {time, index, distance, scrollLeft: this.scrollLeft})
-          this.scrollTo(distance)
-        }
+      if (index !== -1 && this.currentIndex !== index) { // 同一秒内触发仅触发一次更新
+        this.handleMoveDistance(index)
+        this.currentIndex = index
       }
     },
 
@@ -265,22 +263,51 @@ export default {
     moveItem (time) {
       // 视频正在播放的时间点 在视频点所处区间的索引
       const index = this.points && this.points.findIndex(item => (time >= item.period[0] && time < item.period[1]))
-      const distance = index * this.scrollDistance
-      if (index !== -1) {
+      if (index !== -1 && this.showVideoPoint) {
+        this.handleMoveDistance(index)
+      }
+    },
+
+    // 处理偏移的距离
+    handleMoveDistance (index) {
+      const pointsLen = this.points.length
+      const allLiWidth = this.liWidth * pointsLen
+      const offsetX = parseFloat(this.ulWidth) / 2 - parseFloat(this.liWidth) / 2 // 居中所需要偏移的个数
+      const distance = (index) * this.scrollDistance - offsetX // 居中所需要偏移的距离
+
+      if (distance < 0) {
+        if (this.scrollLeft !== 0) {
+          this.scrollTo(0)
+        }
+      } else if (allLiWidth - this.ulWidth > distance) {
         this.scrollTo(distance)
+      } else {
+        if (this.scrollLeft <= this.scrollMax) {
+          this.scrollTo(this.scrollMax)
+        }
       }
     },
 
     scrollTo (distance) {
-      const _distance = distance >= this.scrollMax ? this.scrollMax : (distance > 0 ? distance : 0)
-      console.log('distance:', _distance, this.scrollMax)
+      let _distance = parseInt(distance)
+      _distance = _distance >= this.scrollMax ? this.scrollMax : (_distance > 0 ? _distance : 0)
       const ulEle = this.$refs.ulEle
-      const style = window.getComputedStyle(ulEle)
-      this.scrollLeft = _distance
-      if (style && style.scrollBehavior) {
+      const style = ulEle && window.getComputedStyle(ulEle)
+      if (style && style.scrollBehavior && style.scrollBehavior === 'smooth') {
+        // safari 14.0.x scrollBehavior有默认值 auto，safari 14.1.x scrollBehavior为undefined
         ulEle.scrollLeft = _distance
+        this.scrollLeft = _distance
+        this.toggleTranslation(true)
       } else {
+        // 兼容不支持scrollBehavior的浏览器
         this.scrollSmoothTo(_distance)
+      }
+    },
+
+    // 滑动是否需要过渡效果
+    toggleTranslation (status = true) {
+      if (this.isTranslation !== status) {
+        this.isTranslation = status
       }
     },
 
@@ -288,6 +315,7 @@ export default {
       this.points = []
       this.currentTime = 0
       this.scrollLeft = 0
+      this.currentIndex = -1
 
       this.removeEvents()
     },
@@ -303,15 +331,16 @@ export default {
       const ulEle = this.$refs.ulEle
       // 当前滚动距离
       let scrollLeft = this.scrollLeft
-
       // 滚动step方法
-      const step = function () {
+      const step = () => {
         // 距离目标滚动距离
         const distance = position - scrollLeft
         // 目标滚动位置
         scrollLeft = scrollLeft + distance / 5
         if (Math.abs(distance) < 1) {
           ulEle.scrollleft = position
+          this.toggleTranslation(true)
+          this.scrollLeft = position
         } else {
           ulEle.scrollLeft = scrollLeft
           requestAnimationFrame(step)
@@ -347,7 +376,6 @@ export default {
       return utils.throttle(() => {
         if (this.showVideoPoint) {
           this.checkMobile()
-          this.setShowLen()
           this.initSize()
         }
       })()
@@ -374,23 +402,6 @@ export default {
       this.orientation = result
     },
 
-    // 设置显示知识点的个数
-    setShowLen () {
-      console.log('this', this.vm.isFullScreen())
-      if (this.vm.isFullScreen()) {
-        // 全屏5个
-        this.showLen = 5
-      } else {
-        if (document.body.clientWidth <= 768 || this.isMobile) {
-          // 小屏, 横屏3个，竖屏4个
-          this.showLen = this.orientation === 'landscape' ? 3 : 4
-        } else {
-          // 大屏
-          this.showLen = 4
-        }
-      }
-    },
-
     // 设置视频播放器视频点图标显示状态
     // mobile： 隐藏pc视频点图标
     // pc：依据showVideoPoint设置pc视频点图标的状态
@@ -415,7 +426,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
-$h: 58px;
+$h: 54px;
+$color: #fff;
+$activeColor: #FFAF44;
+
 .video-point {
   box-sizing: border-box;
   position: absolute;
@@ -439,15 +453,22 @@ $h: 58px;
 }
 
 .ul-wrap {
-  width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  max-width: 100%;
   height: 100%;
   box-sizing: border-box;
-  flex: 1;
   flex-shrink: 0;
   padding: 0 10px;
   border: 1px solid #49474E;
   background: rgba(15, 15, 15, .8);
-  border-radius: 4px;
+  border-radius: 8px;
+
+  &.ul-wrap-min {
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 ul {
@@ -455,11 +476,9 @@ ul {
   display: flex;
   flex-wrap: nowrap;
   height: 100%;
-  padding: 12px 0;
+  padding: 10px 0 9px 0;
   overflow-x: auto;
   overflow-y: hidden;
-  transition: all .3s;
-  scroll-behavior: smooth;
   scrollbar-width: none; // 不显示滚动条,兼容火狐
 
   &::-webkit-scrollbar {
@@ -467,7 +486,6 @@ ul {
     height: 0;
     opacity: 0;
   }
-
 }
 
 li {
@@ -476,10 +494,10 @@ li {
   display: inline-flex;
   flex-shrink: 0;
   width: 20%;
-  padding: 0 7px 0 23px;
+  padding: 0 7px 0 22px;
   font-size: 12px;
-  line-height: 16px;
-  color: #fff;
+  line-height: 17px;
+  color: $color;
   text-align: left;
   cursor: pointer;
   overflow: hidden;
@@ -492,10 +510,10 @@ li {
   &:before {
     content: '';
     position: absolute;
-    top: 5px;
+    top: 6.5px;
     left: 13px;
-    width: 5px;
-    height: 5px;
+    width: 4px;
+    height: 4px;
     background: #D8D8D8;
     border-radius: 50%;
   }
@@ -508,7 +526,7 @@ li {
     width: 1px;
     height: 20px;
     transform: translateY(-50%);
-    background: rgba(194, 194, 194, .6);
+    background: rgba(194, 194, 194, .5);
   }
 
   &:last-child {
@@ -518,13 +536,13 @@ li {
   }
 
   &.active {
-    color: #FA8919;
+    color: $activeColor;
 
     &:before {
-      top: 1px;
-      left: 8px;
+      top: 4px;
+      left: 9px;
       width: 8px;
-      height: 9.5px;
+      height: 8px;
       background: url('../image/i-runing.gif') no-repeat center / 100% auto transparent;
       border-radius: 0;
     }
@@ -533,7 +551,7 @@ li {
       &:before {
         content: '';
         position: absolute;
-        top: 3px;
+        top: 4px;
         left: 9px;
         width: 8px;
         height: 8px;
@@ -543,14 +561,14 @@ li {
     }
 
     .time {
-      color: #FA8919;
+      color: $activeColor;
     }
   }
 }
 
 .time {
   display: inline-block;
-  color: #fff;
+  color: $color;
 }
 
 .icon {
@@ -580,11 +598,9 @@ li {
 
 .fold-area {
   position: relative;
-  // top: -1px;
-  // left: -1px;
   box-sizing: border-box;
   width: 33px;
-  height: 48px;
+  height: 100%;
   flex-shrink: 0;
   background: rgba(14, 21, 29, 0.7);
   border-radius: 5px;
@@ -596,22 +612,13 @@ li {
     border-radius: 0 9px 9px 0;
     background: no-repeat url('../image/icon-next.png') center right 2px / 9px auto rgba(14, 21, 29, 0.7);
   }
-
-  // 横屏
-  &.landscape {
-    display: flex;
-    align-items: center;
-    // justify-content: center;
-    flex-direction: column;
-    height: 32px;
-  }
 }
 
 .fold-area-text {
   transform: scale(0.5) translateY(-10px);
   line-height: 33px;
   font-size: 20px;
-  color: #FFFFFF;
+  color: $color;
   writing-mode: vertical-lr;
   word-break: keep-all;
 }
@@ -620,82 +627,119 @@ li {
   position: relative;
   box-sizing: border-box;
   width: 33px;
-  height: 50px;
+  height: 100%;
   flex-shrink: 0;
   background: rgba(14, 21, 29, 0.7);
-  border-radius: 6px 0 0 6px;
-  border: 1px solid #49474E;
+  border-radius: 6px 6px 6px 6px;
+  border-right: 1px solid #49474E;
   border-right: none;
-
-  // 横屏
-  &.landscape {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    height: 32px;
-  }
 }
 
 .unfold-area-text {
   transform: scale(0.5) translateY(-10px);
   line-height: 33px;
   font-size: 20px;
-  color: #FFFFFF;
+  color: $color;
   writing-mode: vertical-lr;
   word-break: keep-all;
 }
 
 .landscape-fold-area-text {
-  width: 60px;
-  height: 28px;
-  font-size: 20px;
-  transform: scale(.25);
+  font-size: 18px;
+  transform: scale(.5);
   font-weight: 400;
-  color: #FFFFFF;
+  color: $color;
   word-break: keep-all;
 }
 
 .landscape-unfold-area-text {
   width: 60px;
   height: 28px;
-  font-size: 20px;
-  transform: scale(.25);
+  font-size: 18px;
+  transform: scale(.5);
   font-weight: 400;
-  color: #FFFFFF;
+  color: $color;
   word-break: keep-all;
+  text-align: center;
 }
 
 .icon-book {
   flex-shrink: 0;
-  width: 10px;
-  height: 11px;
-  margin: 6px 0 -11px 0;
+  width: 20px;
+  height: 18px;
+  margin: 10px 0 -4px 0;
   background: no-repeat url('../image/book.png') center / 100% auto;
 }
 
 .video-point-mobile {
-  height: 48px;
-  bottom: 41px;
+  height: 50px;
 
-  &.hide {
-    display: block;
-    width: 53px;
+  .ul-wrap {
+    height: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 6px;
   }
 
   .list {
-    height: 50px;
     padding: 9px 0;
-    border-left: none ;
-    border-radius: 0 6px 6px 0;
   }
 
   // 横屏
   &.landscape{
+    height: 55px;
+
     .list {
-      height: 32px;
-      padding: 7px 0;
+      padding: 12px 0;
+    }
+
+    .unfold-area {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      width: 50px;
+    }
+
+    .fold-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      width: 50px;
+      border-right: none;
+
+      &.landscape {
+        width: 100%;
+      }
     }
   }
+}
+
+.ul-wrap-hide {
+  position: relative;
+  top: 1px;
+  left: 1px;
+  display: block;
+  width: 33px;
+  border: none;
+
+  .icon-book {
+    margin-bottom: -5px;
+  }
+
+  &.ul-wrap-hide-landsace {
+    width: 55px;
+  }
+}
+
+.landscape {
+  .ul-wrap-hide {
+    width: 50px;
+  }
+}
+
+.mobile-list {
+  max-width: calc(100% - 55px);
 }
 
 </style>

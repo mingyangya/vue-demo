@@ -114,7 +114,7 @@
         <!-- 扩展功能 -->
         <template v-if="extensionList && extensionList.length > 0">
           <template v-for="(itemJ, j) in extensionList">
-            <div :class="[$style.extensionItem, 'extension-item-'+ itemJ.name]" @click.stop="clickExtenstionItem(itemJ)" :key="j">
+            <div :class="[$style.extensionItem, 'extension-item-'+ itemJ.name]" @click.stop :key="j">
               <template v-if="itemJ.name === videoPointKey">
                 <!-- 视频点 -->
                 <!-- 移动端隐藏图标 -->
@@ -529,8 +529,6 @@ export default {
         this.durationTime = this.player.durationTime
         this.loadedPercentage = this.player.loadedPercentage
 
-        this.$emit('timeupdate', this.current)
-
         // 检查字幕 cues 对象是否存在，丢失的话重载字幕
         if (this.config && this.config.isEncrypt) {
           this.checkSubtitles()
@@ -856,10 +854,17 @@ export default {
       this.isWebFullScreen = !this.isWebFullScreen
       this.emit('webFullScreenStatus', this.isWebFullScreen)
     },
+
+    // 获取元素距页面左边的距离
+    getProgressBarViewLeft () {
+      const progressBarWrap = this.$refs.progressBarWrap
+      return utils.getElementViewLeft(progressBarWrap, progressBarWrap.offsetParent)
+    },
+
     thumbMove (e) {
       this.isDragging = true
       const progressBarWrap = this.$refs.progressBarWrap
-      let percentage = ((e.clientX || e.changedTouches[0].clientX) - utils.getElementViewLeft(progressBarWrap)) / progressBarWrap.clientWidth
+      let percentage = ((e.clientX || e.changedTouches[0].clientX) - this.getProgressBarViewLeft()) / progressBarWrap.clientWidth
       percentage = Math.max(percentage, 0)
       percentage = Math.min(percentage, 1)
       this.thumbPercentage = percentage * 100 + '%'
@@ -870,7 +875,7 @@ export default {
       document.removeEventListener(utils.nameMap.dragEnd, this.thumbUp)
       document.removeEventListener(utils.nameMap.dragMove, this.thumbMove)
       const progressBarWrap = this.$refs.progressBarWrap
-      let percentage = ((e.clientX || e.changedTouches[0].clientX) - utils.getElementViewLeft(progressBarWrap)) / progressBarWrap.clientWidth
+      let percentage = ((e.clientX || e.changedTouches[0].clientX) - this.getProgressBarViewLeft()) / progressBarWrap.clientWidth
       percentage = Math.max(percentage, 0)
       percentage = Math.min(percentage, 1)
       this.thumbPercentage = percentage * 100 + '%'
@@ -1157,11 +1162,6 @@ export default {
       this.$emit('toggleOutLineTip', false)
     },
 
-    // 扩展组件通用方法
-    clickExtenstionItem (item, i) {
-      console.log('click', item, i)
-    },
-
     // pc下 控制视频点图标状态的切换 & 控制视频点组件的显隐
     toggleVideoPoint (status) {
       this.showVideoPoint = status
@@ -1171,13 +1171,17 @@ export default {
       this.hideVideoPointIcon = status
     },
 
-    videoPointFun (fun, args) {
+    /**
+     * @param {string} funName 方法名
+     * @param {any} 参数
+     */
+    videoPointFun (funName, ...args) {
       this.$nextTick(() => {
         let ele = this.$refs[this.videoPointKey]
         ele = ele && ele[0]
 
-        if (ele && ele[fun]) {
-          Array.isArray(args) ? ele[fun](...args) : (args ? ele[fun](args) : ele[fun]())
+        if (ele && ele[funName]) {
+          ele[funName](...args)
         }
       })
     },
@@ -1394,6 +1398,7 @@ export default {
   left 0px
   right 0px
   height 3px
+  z-index 1
   &:hover
     // .barTime
     //   opacity 1
@@ -1595,9 +1600,17 @@ export default {
       transition opacity .3s ease, transform .3s ease
 .videoPointOnBtn
   &:before
+    position relative
+    top 1px
+    font-size 15px
     content '\e612'
+    color #FA8919
+    color var(--primary-color)
 .videoPointOffBtn
   &:before
+    position relative
+    top 1px
+    font-size 15px
     content '\e6df'
 .pictureInPictureOnBtn
   &:before
@@ -1664,6 +1677,7 @@ export default {
     display flex
     align-items center
     flex 1
+    z-index 1
     order 1
     height 40px
     padding 0 10px
