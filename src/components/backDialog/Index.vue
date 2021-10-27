@@ -1,52 +1,123 @@
 <template>
-  <div class="home-back">
-    <div @click="toggle" class="home-icon" ref="homeEle"></div>
-    <BackDialog :show="show" ref="dialog" />
+  <div>
+    <gkDrag :touch="touch" :range="thumbRange" :auto="auto" @move="handleThumbMove">
+      <div class="home-back home-icon" @click="clickHome" :style="thumbStyle" ref="homeEl"></div>
+    </gkDrag>
+
+    <BackDialog ref="dialog" @close="close" @open="open"/>
   </div>
 </template>
 
 <script>
-import DragClass from './drag.class'
+import VueTypes from 'vue-types'
+import gkDrag from './drag/drag'
 import BackDialog from './BackDialog'
 export default {
   data () {
     return {
-      show: false
+      top: 0,
+      left: 0,
+      auto: true,
+      thumbRange: {}
+    }
+  },
+  props: {
+    // 初始位置
+    position: VueTypes.shape({
+      top: Number,
+      left: Number,
+    }).def({}).loose,
+    // 移动范围
+    range: VueTypes.shape({
+      xmin: Number,
+      xmax: Number,
+      ymin: Number,
+      ymax: Number
+    }).def({}).loose,
+    touch: VueTypes.bool.def(true)
+  },
+  computed: {
+
+    width () {
+      return this.$refs.homeEl.clientWidth
+    },
+
+    height () {
+      return this.$refs.homeEl.clientHeight
+    },
+
+    screenWidth () {
+      return window.screen.width
+    },
+
+    screenHeight () {
+      return window.screen.height
+    },
+
+    thumbStyle () {
+      return {left: `${this.left}px`, top: `${this.top}px`}
     }
   },
   components: {
-    BackDialog
+    BackDialog,
+    gkDrag
   },
   mounted () {
-    this.$nextTick(() => {
-      this.dragClass = new DragClass({
-        $drag: this.$refs.homeEle,
-        scroll: false,
-        touch: true,
-        auto: true,
-        range: {
-          xmin: 0,
-          xmax: 300,
-          ymin: 0,
-          ymax: 300
-        },
-        inertia: true,
-        syncStart: (x, y, ev) => {
-          this.$emit('start', x, y, ev)
-        },
-        syncMove: (x, y, left, top, ev) => {
-          this.$emit('move', x, y, left, top, ev)
-        },
-        syncEnd: () => {
-          this.$emit('end')
-        }
-      })
-    })
-    
+    this.initRange()
+    this.initStyle()
   },
   methods: {
-    toggle () {
+    //设置拖动范围
+    initRange () {
+      const range = {
+        xmin: 0,
+        xmax: this.screenWidth - this.width,
+        ymin: 0,
+        ymax: this.screenHeight - this.height
+      }
+      this.thumbRange = {...range, ...this.range}
+    },
+
+    initStyle () {
+      const bottom = 69
+      const right = 9
+
+      let left = 0
+      let top = 0
+
+      const keys = Object.keys(this.position)
+
+      if (keys && keys.length > 0)  {
+        left = this.position.left || 0
+        top = this.position.top || 0
+      } else {
+        left = this.screenWidth - this.width - right
+        top = this.screenHeight - this.height - bottom
+      }
+
+      this.top = top
+      this.left = left
+    },
+
+    /**
+     * 滚动条移动时的事件
+     */
+    handleThumbMove (x, y, left, top, ev) {
+      console.log('move:', {x, y, left, top})
+      this.top = top
+      this.left = left
+    },
+    
+    clickHome () {
       this.$refs.dialog.open()
+    },
+
+    open () {
+      this.$emit('open')
+    },
+
+    close () {
+      this.$emit('close')
     }
   }
 }
@@ -54,10 +125,10 @@ export default {
 
 <style scoped lang="scss">
 
-.home-icon {
+.home-icon  {
   position: fixed;
-  bottom: 69px;
-  right: 9px;
+  top: 69px;
+  left: 9px;
   z-index: 10;
   width: 62px;
   height: 62px;
@@ -66,17 +137,5 @@ export default {
 
 /deep/ .common-dialog {
   z-index: 11;
-}
-
-.fade-enter-active, 
-.fade-leave-active {
-  // transition: opacity .5s;
-  transition: all 5s;
-}
-
-.fade-enter, 
-.fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
-  font-size: 30px;
 }
 </style>

@@ -6,6 +6,10 @@
 
 <style>
 @import url(./assets/css/typo.css);
+body,html {
+  width: 100%;
+  min-height: 100vh;
+}
 
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;

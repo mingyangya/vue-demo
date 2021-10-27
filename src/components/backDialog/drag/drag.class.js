@@ -70,12 +70,8 @@ class Drag {
 
   handlDragStart (ev) {
     const event = this.isTouch ? ev.touches[0] : ev
-    console.log(event)
-    if (event.stopImmediatePropagation) {
-      event.stopImmediatePropagation()
-    } else {
-      event.stopPropagation()
-    }
+
+    ev.stopImmediatePropagation()
 
     this.startX = event.pageX
     this.startY = event.pageY

@@ -35,21 +35,24 @@
 export default {
   data () {
     return {
-      showDialog: this.show,
+      showDialog: false,
       defaultMenu: [{
-        icon: require('./img/discover.png'),
+        alias: 'found',
         name: '发现',
-        link: 'https://time.geekbang.org',
-        eventName: ''
+        icon: require('./img/discover.png'),
+        link: 'https://wxtime.geekbang.org',
+        eventName: '' // 回调事件名称
       }, {
+        alias: 'learn',
+        name: '学习', 
         icon: require('./img/learn.png'),
-        name: '学习',
-        link: 'https://u.geekbang.org',
+        link: 'https://wxtime.geekbang.org/learn',
         eventName: ''
       }, {
-        icon: require('./img/my.png'),
+        alias: 'mine',
         name: '我的',
-        link: 'https://b.geekbang.org',
+        icon: require('./img/my.png'),
+        link: 'https://wxtime.geekbang.org/mine',
         eventName: ''
       }],
       positionList: ['top', 'center', 'bottom']
@@ -58,10 +61,6 @@ export default {
   props: {
     title: String,
     wrapClass: String,
-    show: {
-      type: Boolean,
-      default: false
-    },
     align: {
       type: String,
       default: 'center'
@@ -72,15 +71,7 @@ export default {
     menu () {
       return this.list || this.defaultMenu
     }
-  },
-  created () {
-
-  },
-  watch: {
-    // show (val) {
-    //   this.showDialog = val
-    // }
-  },
+  }, 
   methods: {
     open () {
       this.$emit('open')

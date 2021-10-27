@@ -1,6 +1,6 @@
 <template>
-  <div class="home-back">
-    <BackDialog :show="show" ref="dialog" />
+  <div class="home-back-wrap">
+    <BackDialog />
   </div>
 </template>
 
