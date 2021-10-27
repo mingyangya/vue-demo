@@ -4,14 +4,14 @@
       <div class="home-back home-icon" @click="clickHome" :style="thumbStyle" ref="homeEl"></div>
     </gkDrag>
 
-    <BackDialog ref="dialog" @close="close" @open="open"/>
+    <BackWxtime ref="dialog" @close="close" @open="open"/>
   </div>
 </template>
 
 <script>
 import VueTypes from 'vue-types'
 import gkDrag from './drag/drag'
-import BackDialog from './BackDialog'
+import BackWxtime from './back-wxtime'
 export default {
   data () {
     return {
@@ -37,7 +37,6 @@ export default {
     touch: VueTypes.bool.def(true)
   },
   computed: {
-
     width () {
       return this.$refs.homeEl.clientWidth
     },
@@ -59,7 +58,7 @@ export default {
     }
   },
   components: {
-    BackDialog,
+    BackWxtime,
     gkDrag
   },
   mounted () {
@@ -103,7 +102,6 @@ export default {
      * 滚动条移动时的事件
      */
     handleThumbMove (x, y, left, top, ev) {
-      console.log('move:', {x, y, left, top})
       this.top = top
       this.left = left
     },

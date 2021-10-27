@@ -89,11 +89,10 @@ export default {
     },
 
     clickMenu ({link, eventName}) {
-      console.log(link, eventName)
       this.$emit(eventName)
       this.close()
       if (link) {
-        window.location.href = link
+        window.open(link)
       }
     }
   }

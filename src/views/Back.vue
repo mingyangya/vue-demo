@@ -1,19 +1,14 @@
 <template>
   <div class="home-back-wrap">
-    <BackDialog />
+    <BackWxtime />
   </div>
 </template>
 
 <script>
-import BackDialog from '@/components/backDialog/Index'
+import BackWxtime from '@/components/back-wxtime/index'
 export default {
-  data () {
-    return {
-      show: true
-    }
-  },
   components: {
-    BackDialog
+    BackWxtime
   }
 }
 </script>
