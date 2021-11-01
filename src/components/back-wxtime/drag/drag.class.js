@@ -2,6 +2,7 @@
  * 拖拽位移
  * @param {Object}    option             配置
  * @param {Element}   option.$drag       拖拽的 dom
+ * @param {Element}   option.$dragWrap   拖拽的 dom 外层包裹（用于设置位置的dom，默认为 option.$drag）
  * @param {Boolean}  [option.scroll]     是否是滚动条的内容
  * @param {Array}    [option.range]      移动的区间
  * @param {Boolean}  [option.touch]      是否使用 touch
@@ -10,10 +11,12 @@
  * @param {Function} [option.syncStart]  同步拖拽开始
  * @param {Function} [option.syncMove]   同步拖拽中
  * @param {Function} [option.syncEnd]    同步拖拽结束
+ * @param {Function} [option.syncClick]  同步点击
  */
 class Drag {
   constructor (option = {}) {
     const {scroll, touch, inertia, range} = option
+    this.$dragWrap = option.$dragWrap
     this.$drag = option.$drag
     this.isScroll = scroll || false
     this.isTouch = touch || false
@@ -22,6 +25,7 @@ class Drag {
     this.handleEmitStart = option.syncStart || function () {}
     this.handleEmitMove = option.syncMove || function () {}
     this.handleEmitEnd = option.syncEnd || function () {}
+    this.handleEmitClick = option.syncClick || function () {}
 
     this.useAutoMove = option.auto
 
@@ -41,22 +45,25 @@ class Drag {
     this.moveStartTime = 0
     this.lastMoveTime = 0
 
+    this.startTime = 0
+
     this.handler = {
       start: touch ? 'touchstart' : 'mousedown',
       move: touch ? 'touchmove' : 'mousemove',
-      end: touch ? 'touchend' : 'mouseup'
+      end: touch ? 'touchend' : 'mouseup',
+      click: 'click'
     }
 
-    this.handlDragStart = this.handlDragStart.bind(this)
-    this.handlDragMove = this.handlDragMove.bind(this)
-    this.handlDragEnd = this.handlDragEnd.bind(this)
+    this.handleDragStart = this.handleDragStart.bind(this)
+    this.handleDragMove = this.handleDragMove.bind(this)
+    this.handleDragEnd = this.handleDragEnd.bind(this)
     this.handleInertiaMove = this.handleInertiaMove.bind(this)
 
     this.init()
   }
 
   init () {
-    this.$drag.addEventListener(this.handler.start, this.handlDragStart)
+    this.$drag.addEventListener(this.handler.start, this.handleDragStart)
   }
 
   setRange (range) {
@@ -68,9 +75,10 @@ class Drag {
     this.maxTop = this.useRange && range.ymax
   }
 
-  handlDragStart (ev) {
+  handleDragStart (ev) {
     const event = this.isTouch ? ev.touches[0] : ev
 
+    ev.preventDefault()
     ev.stopImmediatePropagation()
 
     this.startX = event.pageX
@@ -82,18 +90,20 @@ class Drag {
     this.actionMoving = false
     this.inertiaMoving = false
 
+    this.startTime = Date.now()
+
     if (this.useAutoMove) {
-      this.startTop = this.isScroll ? -this.$drag.scrollTop : parseInt(this.$drag.style.top) | 0
-      this.startLeft = parseInt(this.$drag.style.left) | 0
+      this.startTop = this.isScroll ? -this.$dragWrap.scrollTop : parseInt(this.$dragWrap.style.top) | 0
+      this.startLeft = parseInt(this.$dragWrap.style.left) | 0
     }
 
-    document.addEventListener(this.handler.move, this.handlDragMove)
-    document.addEventListener(this.handler.end, this.handlDragEnd)
+    document.addEventListener(this.handler.move, this.handleDragMove)
+    document.addEventListener(this.handler.end, this.handleDragEnd)
 
     this.handleEmitStart(event.pageX, event.pageY, ev)
   }
 
-  handlDragMove (ev) {
+  handleDragMove (ev) {
     if (this.actionMoving) {
       return
     }
@@ -136,12 +146,17 @@ class Drag {
     })
   }
 
-  handlDragEnd () {
-    document.removeEventListener(this.handler.move, this.handlDragMove)
-    document.removeEventListener(this.handler.end, this.handlDragEnd)
+  handleDragEnd (ev) {
+    document.removeEventListener(this.handler.move, this.handleDragMove)
+    document.removeEventListener(this.handler.end, this.handleDragEnd)
 
     const time = Date.now()
     const moveTime = time - this.moveStartTime
+
+    // 事件历时小于 200ms 判定为点击
+    if (time - this.startTime < 200) {
+      this.handleEmitClick(ev)
+    }
 
     // 判断是不是惯性滑动
     const inertia = this.isInertia && time - this.lastMoveTime < 50
@@ -186,7 +201,7 @@ class Drag {
   }
 
   destroy () {
-    this.$drag.removeEventListener(this.handler.start, this.handlDragStart)
+    this.$drag.removeEventListener(this.handler.start, this.handleDragStart)
   }
 }
 

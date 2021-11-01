@@ -1,6 +1,6 @@
 <template>
   <div :class="[wrapClass, 'common-dialog']" v-if="showDialog">
-    <div class="common-dialog-mask" @click="handleMask"></div>
+    <div class="common-dialog-mask" @click.stop="handleMask"></div>
 
     <transition name="fade">
       <div class="common-dialog-container">
@@ -13,7 +13,7 @@
         <div class="common-dialog-body">
           <slot>
             <div class="menu">
-              <div class="menu-item" v-for="(menu, i) in menu" :key="i" @click="clickMenu(menu)">
+              <div class="menu-item" v-for="(menu, i) in menu" :key="i" @click.stop="clickMenu(menu)">
                 <img class="icon" :src="menu.icon" />
                 <div class="name"><span>{{menu.name}}</span></div>
               </div>
@@ -23,7 +23,7 @@
 
         <div class="common-dialog-footer">
           <slot name="footer">
-            <div class="button" @click="close">关闭</div>
+            <div class="button" @click.stop="close">关闭</div>
           </slot>
         </div>
       </div>
@@ -39,19 +39,19 @@ export default {
       defaultMenu: [{
         alias: 'found',
         name: '发现',
-        icon: require('./img/discover.png'),
+        icon: 'https://static001.geekbang.org/resource/image/c6/10/c6472d88fab56b1dyy2d763fd6a2cd10.png',
         link: 'https://wxtime.geekbang.org',
         eventName: '' // 回调事件名称
       }, {
         alias: 'learn',
-        name: '学习', 
-        icon: require('./img/learn.png'),
+        name: '学习',
+        icon: 'https://static001.geekbang.org/resource/image/9b/49/9b98a38dda5fe2e03484dcc8e1cf4649.png',
         link: 'https://wxtime.geekbang.org/learn',
         eventName: ''
       }, {
         alias: 'mine',
         name: '我的',
-        icon: require('./img/my.png'),
+        icon: 'https://static001.geekbang.org/resource/image/d3/f2/d37ecbbd4b5be4d4348a7507868d0ef2.png',
         link: 'https://wxtime.geekbang.org/mine',
         eventName: ''
       }],
@@ -71,7 +71,11 @@ export default {
     menu () {
       return this.list || this.defaultMenu
     }
-  }, 
+  },
+
+  mounted () {
+
+  },
   methods: {
     open () {
       this.$emit('open')
@@ -92,7 +96,7 @@ export default {
       this.$emit(eventName)
       this.close()
       if (link) {
-        window.open(link)
+        location.href = link
       }
     }
   }
@@ -109,7 +113,7 @@ export default {
 }
 
 .common-dialog-mask {
-  position: fixed;
+  position: absolute;
   width: 100%;
   height: 100%;
   z-index: 1;

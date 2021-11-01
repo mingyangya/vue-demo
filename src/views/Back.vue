@@ -1,12 +1,17 @@
 <template>
   <div class="home-back-wrap">
-    <BackWxtime />
+    <BackWxtime/>
   </div>
 </template>
 
 <script>
 import BackWxtime from '@/components/back-wxtime/index'
 export default {
+  data () {
+    return {
+      touch: true
+    }
+  },
   components: {
     BackWxtime
   }

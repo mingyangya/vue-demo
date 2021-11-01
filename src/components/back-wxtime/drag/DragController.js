@@ -23,7 +23,8 @@ export default {
   },
   mounted () {
     this.dragClass = new DragClass({
-      $drag: this.$el,
+      $drag: this.$el.querySelector('[drag]') || this.$el,
+      $dragWrap: this.$el,
       scroll: this.scroll,
       touch: this.touch,
       auto: this.auto,
@@ -37,6 +38,9 @@ export default {
       },
       syncEnd: () => {
         this.$emit('end')
+      },
+      syncClick: () => {
+        this.$emit('click-event')
       }
     })
   },

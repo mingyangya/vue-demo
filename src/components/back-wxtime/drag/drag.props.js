@@ -2,6 +2,10 @@ import VueTypes from 'vue-types'
 
 export default {
   /**
+   * 拖拽元素
+   */
+  drag: HTMLElement,
+  /**
    * 是否为 scrollbar
    */
   scroll: VueTypes.bool.def(false),
