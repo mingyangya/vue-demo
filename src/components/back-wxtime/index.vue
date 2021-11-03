@@ -2,7 +2,7 @@
   <gkDrag :touch="touch" :range="thumbRange" @click-event="clickEvent" :auto="auto" @move="handleThumbMove">
     <div class="home-back" :style="thumbStyle" @click="clickHome">
       <!-- drag用于标示拖拽元素 ，默认为根元素-->
-      <div class="home-icon" ref="homeEle" drag></div>
+      <div :class="['home-icon', {'scrolling': scrolling}]" ref="homeEle" drag></div>
       <BackWxtime ref="dialog" @close="close" @open="open"/>
     </div>
   </gkDrag>
@@ -18,7 +18,12 @@ export default {
       top: 0,
       left: 0,
       auto: true,
-      thumbRange: {}
+      thumbRange: {},
+
+      scrolling: false,
+      top1: 0,
+      top2: 0,
+      timer: null
     }
   },
   props: {
@@ -61,9 +66,21 @@ export default {
     BackWxtime,
     gkDrag
   },
+  created () {
+  },
   mounted () {
     this.initRange()
     this.initStyle()
+
+    // this.listenerScroll()
+    window.addEventListener('scroll', this.listenScroll)
+    console.log('mounted')
+    // window.addEventListener('scroll', () => {
+    //   console.log('sfsadf')
+    // })
+  },
+  beforeDestroy () {
+    window.removeEventListener('scroll', this.listenScroll)
   },
   methods: {
     // 设置拖动范围
@@ -120,6 +137,28 @@ export default {
 
     close () {
       this.$emit('close')
+    },
+
+    listenScroll () {
+      console.log('scroll')
+      this.scrolling = true
+      clearTimeout(this.timer)
+      this.top1 = this.getScrollTop()
+      this.timer = setTimeout(this.isScrollEnd, 100)
+    },
+
+    getScrollTop () {
+      return document.documentElement.scrollTop || document.body.scrollTop
+    },
+
+    isScrollEnd () {
+      this.top2 = this.getScrollTop()
+
+      if (this.top2 === this.top1) {
+        setTimeout(() => {
+          this.scrolling = false
+        }, 0)
+      }
     }
   }
 }
@@ -139,9 +178,9 @@ export default {
 .home-icon {
   width: 100%;
   height: 100%;
-  background: url('https://static001.geekbang.org/resource/image/df/46/dffe62714d89f5e77d7b57d377a7a746.png') no-repeat center / 100%;
+  background: url('https://static001.geekbang.org/resource/image/3d/94/3de2ecba4bf022bbf12c526b5caa8794.png') no-repeat center / 100%;
 
-  &.move {
+  &.scrolling {
     opacity: .7;
   }
 }

@@ -25,7 +25,6 @@ export default {
     this.dragClass = new DragClass({
       $drag: this.$el.querySelector('[drag]') || this.$el,
       $dragWrap: this.$el,
-      activeClass: this.activeClass,
       scroll: this.scroll,
       touch: this.touch,
       auto: this.auto,

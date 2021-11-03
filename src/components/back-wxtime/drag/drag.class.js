@@ -15,15 +15,12 @@
  */
 class Drag {
   constructor (option = {}) {
-    const {scroll, touch, inertia, range, activeClass} = option
+    const {scroll, touch, inertia, range} = option
     this.$dragWrap = option.$dragWrap
     this.$drag = option.$drag
     this.isScroll = scroll || false
     this.isTouch = touch || false
     this.isInertia = inertia || false
-    this.activeClass = activeClass
-
-    console.log(option, activeClass)
 
     this.handleEmitStart = option.syncStart || function () {}
     this.handleEmitMove = option.syncMove || function () {}
@@ -32,6 +29,7 @@ class Drag {
 
     this.useAutoMove = option.auto
 
+    console.log('auto', option.auto)
     this.setRange(range)
 
     this.startTop = 0
@@ -143,10 +141,6 @@ class Drag {
         this.top = top
       }
 
-      if (!this.$drag.classList.contains(this.activeClass)) {
-        this.$drag.classList.add(this.activeClass)
-      }
-
       this.handleEmitMove(moveX, moveY, this.left, this.top, ev)
 
       this.actionMoving = false
@@ -175,8 +169,6 @@ class Drag {
     } else {
       this.handleEmitEnd()
     }
-
-    this.$drag.classList.remove(this.activeClass)
   }
 
   /**

@@ -9,7 +9,7 @@
 body,html {
   width: 100%;
   min-height: 100vh;
-  background: #3d3c3c;
+  /* background: #3d3c3c; */
 }
 
 #app {
