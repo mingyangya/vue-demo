@@ -72,12 +72,7 @@ export default {
     this.initRange()
     this.initStyle()
 
-    // this.listenerScroll()
     window.addEventListener('scroll', this.listenScroll)
-    console.log('mounted')
-    // window.addEventListener('scroll', () => {
-    //   console.log('sfsadf')
-    // })
   },
   beforeDestroy () {
     window.removeEventListener('scroll', this.listenScroll)

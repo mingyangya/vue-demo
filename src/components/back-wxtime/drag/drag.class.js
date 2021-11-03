@@ -29,7 +29,6 @@ class Drag {
 
     this.useAutoMove = option.auto
 
-    console.log('auto', option.auto)
     this.setRange(range)
 
     this.startTop = 0
