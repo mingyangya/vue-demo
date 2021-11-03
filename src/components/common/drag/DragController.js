@@ -3,12 +3,7 @@ import props from './drag.props'
 import DragClass from './drag.class'
 
 export default {
-  name: 'gkui-drag-controller',
   props: Object.assign({
-    /**
-     * 需要 render 的 dom
-     * drag.controller 由 高阶函数 Drag 调用渲染
-     */
     child: VueTypes.object.isRequired
   }, props),
   data () {
@@ -16,16 +11,10 @@ export default {
       dragClass: null
     }
   },
-  watch: {
-    range (range) {
-      this.dragClass.setRange(range)
-    }
-  },
   mounted () {
     this.dragClass = new DragClass({
       $drag: this.$el.querySelector('[drag]') || this.$el,
       $dragWrap: this.$el,
-      activeClass: this.activeClass,
       scroll: this.scroll,
       touch: this.touch,
       auto: this.auto,
@@ -45,10 +34,10 @@ export default {
       }
     })
   },
+  render () {
+    return this.child
+  },
   beforeDestroy () {
     this.dragClass && this.dragClass.destroy()
-  },
-  render (h) {
-    return this.child
   }
 }

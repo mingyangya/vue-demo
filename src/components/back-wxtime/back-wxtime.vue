@@ -104,6 +104,17 @@ export default {
 </script>
 
 <style scoped lang="scss">
+
+@mixin supportsBottom () {
+  @supports (padding-bottom: constant(safe-area-inset-bottom)) {
+    @content;
+  }
+  @supports (padding-bottom: env(safe-area-inset-bottom)) {
+    @content;
+  }
+
+}
+
 .common-dialog {
   position: fixed;
   top: 0;
@@ -129,6 +140,12 @@ export default {
   height: 138px;
   background: #FFFFFF;
   border-radius: 10px 10px 0px 0px;
+
+  // iphone 安全区域
+  @include supportsBottom() {
+    padding-bottom: const(safe-area-inset-bottom, 16px); //兼容 IOS<11.2
+    padding-bottom: env(safe-area-inset-bottom, 16px); // IOS>11.2
+  }
 }
 
 .common-dialog-body {

@@ -5,6 +5,7 @@ export default {
    * 拖拽元素
    */
   drag: HTMLElement,
+  activeClass: VueTypes.string.def('move'),
   /**
    * 是否为 scrollbar
    */

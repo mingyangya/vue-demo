@@ -134,12 +134,16 @@ export default {
   z-index: 10;
   width: 62px;
   height: 62px;
-  background: url('https://static001.geekbang.org/resource/image/df/46/dffe62714d89f5e77d7b57d377a7a746.png') no-repeat center / 100%;
 }
 
 .home-icon {
   width: 100%;
   height: 100%;
+  background: url('https://static001.geekbang.org/resource/image/df/46/dffe62714d89f5e77d7b57d377a7a746.png') no-repeat center / 100%;
+
+  &.move {
+    opacity: .7;
+  }
 }
 
 ::v-deep .common-dialog {
