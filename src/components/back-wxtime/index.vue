@@ -135,7 +135,6 @@ export default {
     },
 
     listenScroll () {
-      console.log('scroll')
       this.scrolling = true
       clearTimeout(this.timer)
       this.top1 = this.getScrollTop()
