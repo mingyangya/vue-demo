@@ -2,7 +2,7 @@ name: GitHub Actions Build and Deploy
 on:
   push:
     branches:
-      - main
+      - master
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -14,13 +14,10 @@ jobs:
       - name: Install and Build
         run: |
           npm install
-          npm run-script build
+          npm run build
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
-          GITHUB_TOKEN: ${{ secrets.VISUAL_DRAG_DEMO }}
+          GITHUB_TOKEN: ${{ secrets.secerts_token }}
           BRANCH: master
           FOLDER: dist
-          CLEAN: true
-          REPOSITORY_NAME: woai3c/woai3c.github.io
-          TARGET_FOLDER: visual-drag-demo
