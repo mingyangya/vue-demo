@@ -16,8 +16,8 @@ jobs:
           npm install
           npm run build
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@3.7.1
+        uses: JamesIves/github-pages-deploy-action@4.1.5
         with:
           GITHUB_TOKEN: ${{ secrets.secerts_token }}
-          BRANCH: master
+          BRANCH: gh-pages
           FOLDER: dist
