@@ -2,11 +2,13 @@
   <div class="test-vue">
     <div class="play-gif">
       <div class="play-gif-item" v-for="(item, i) in list" :key="i"></div> 
-    </div>  
+    </div>
+    <BackWxtime />
   </div>
 </template>
 
 <script>
+import { BackWxtime } from '@geekbang/geek.elements'
 export default {
   data () {
     return {
@@ -28,6 +30,7 @@ export default {
     }
   },
   components: {
+    BackWxtime
   },
   computed: {
     VideoPoint () {
@@ -35,8 +38,6 @@ export default {
     }
   },
   mounted () {
-    let a = utils.foo()
-    console.log(a)
   },
   methods: {
     videoPointClick () {
