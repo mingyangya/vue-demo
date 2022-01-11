@@ -1,97 +1,91 @@
 <template>
-  <div class="barrage-box-item" ref="ele" :style="listStyle" v-if="show">{{content}}</div>
+  <div class="custom-barrage">
+    <div class="barrage-box">
+      <div class="barrage-box-item" ref="ele" :style="itemStyle" v-for="(item, i) in barrageList" :key="i">
+        <slot/>
+        {{item.content}}
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
+// 跑马灯，可控制区域内显示个数。控制滚动的速度/距离
 export default {
   data () {
     return {
-      boxH: 200,
-      itemH: 50,
-      t: 1000,
-      tranlateY: 250,
-      listStyle: {
-        transform: `translate3d(0, ${200}px ,0)`
-      }
+      barrageList: [],
+      timer: null,
+      t: 100,
     }
   },
   props: {
-    show: true,
-    content: {
-      type: String,
-      default: '弹幕'
-    },
-    startTime: {
-      type: Number,
-      default: 1000
+    list: Array,
+    grap: {
+      type: Object,
+      default () {
+        return {}
+      }
     }
   },
-  created () {
-    this.init()
-  },
+  computed: {
+    itemStyle () {
+      // const { top, right, bottom, left } = this.grap || {}
 
+      return this.normalizeData({ margin: 0 })
+    }
+  },
+  watch: {
+    list: {
+      handler (newList, oldList) {
+        if (newList) {
+          this.barrageList = newList
+        }
+      },
+      immediate: true,
+    }
+  },
   beforeDestroy () {
     this.clear()
   },
   methods: {
-    init () {
-      this.$nextTick(() => {
-        setTimeout(() => {
-          // this.initPostion()
-          
-          this.timer = setInterval(this.animate, this.t)
-        }, this.startTime)
-      }) 
+    
+    render () {
+
     },
 
-    animate () {
-      const max = 0
-      if(-this.tranlateY <= max) {
-        this.setPosition(this.tranlateY - this.itemH)
-      } else {
-        this.clear()
-      }
+    normalizeData (data) {
+      return Object.keys(data)
+      .filter((key) => data[key] !== null && data[key] !== undefined && data[key] !== '')
+      .reduce((acc, key) => ({ ...acc, [key]: data[key] }), {})
     },
 
-    setPosition (tranlateY, duration) {
-      this.tranlateY = tranlateY
-      this.setListStyle(tranlateY, duration)
-    },
-
-    setListStyle (tranlateY, duration = 0.3) {
-      this.setListStyles({
-        transition: `transform ${duration}s ease`,
-        transform: `translate3d(0, ${tranlateY}px ,0)`
-      })
-    },
-
-    // 设置多个css样式
-    setListStyles (styleObj) {
-      const styles = styleObj && Object.keys(styleObj) || []
-      styles.forEach(key => {
-        this.$set(this.listStyle, key, styleObj[key])
-      })
+    getSize () {
+      const wrapSize = {}
     },
 
     clear () {
       clearInterval(this.timer)
-      this.setListStyles({ transition: `transform 0s ease` })
-      this.$emit('clear')
     }
   }
 }
 </script>
 
 <style lang="scss" scoped >
-.barrage-box {
-  width: 200px;
+.custom-barrage {
+  // width: 200px;
   height: 200px;
+  margin: 50px auto 0;
+}
+
+.barrage-box {
+  width: 100%;
+  height: 100%;
   background: #333;
+  overflow: hidden;
 }
 
 .barrage-box-item {
-  position: absolute; top: 0; left: 0;
-  width: 100px;
   height: 50px;
   line-height: 50px;
   background: rgb(224, 94, 7);

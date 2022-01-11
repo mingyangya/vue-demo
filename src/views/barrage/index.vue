@@ -8,8 +8,8 @@
 
 <script>
 import Layout from '@/components/layout/index'
-import Barrage from '@/components/barrage/index'
-// import Barrage from '@/components/barrage/barrage'
+// import Barrage from '@/components/barrage/index'
+import Barrage from '@/components/barrage/barrage'
 
 // import Mock from 'mockjs'
 export default {
