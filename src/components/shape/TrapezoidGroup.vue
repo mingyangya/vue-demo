@@ -2,14 +2,13 @@
   <div class="shape-group">
     <Trapezoid v-for="(item, i) in list"
       :key="i"
-      class="shape-item shape-item-1"
+      :class="`shape-item shape-item-${i+1}`"
       :color="item.color"
       :width="item.width"
       :quadrant="item.quadrant"
       :style="item.offset ? {'margin-left': `-${item.offset}px`} : {}"
       >
-      {{item.offset}}
-      <slot/>
+      <slot :name="`shape${i+1}`"/>
     </Trapezoid>
   </div>
 </template>
@@ -78,12 +77,6 @@ export default {
           deg = -180 + deg 
           break;
       }
-
-      console.log('---', deg)
-      // deg = quadrant > 1 ? quadrant * 90 - deg : deg
-
-      console.log('+++', deg)
-
       this.setStyle(deg, gradientLineLength)
     },
 
@@ -136,9 +129,15 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.shape-trapezoid {
+.shape-group {
+  display: flex;
+  flex-wrap: nowrap;
   width: 100%;
   height: 100%;
-  min-height: 10px;
 }
+
+.shape-item {
+  flex-shrink: 0;
+}
+
 </style>

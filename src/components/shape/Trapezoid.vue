@@ -74,7 +74,10 @@ export default {
     },
 
     setStyle (deg, width) {
-      this.$set(this.style, 'background-image', `linear-gradient( ${deg}deg, ${this.color} 0, ${this.color} ${width}px, transparent ${width}px)`)
+      // this.$set(this.style, 'background-image', `-webkit-linear-gradient( ${deg}deg, ${this.color} ${width}px, transparent ${width}px)`)
+      // this.$set(this.style, 'background-image', `-moz-linear-gradient( ${deg}deg, ${this.color} ${width}px, transparent ${width}px)`)
+      // this.$set(this.style, 'background-image', `-o-linear-gradient( ${deg}deg, ${this.color} ${width}px, transparent ${width}px)`)
+      this.$set(this.style, 'background-image', `linear-gradient( ${deg}deg, ${this.color} ${width}px, transparent ${width}px)`)
     },
 
     getSize () {
@@ -125,6 +128,5 @@ export default {
 .shape-trapezoid {
   width: 100%;
   height: 100%;
-  min-height: 10px;
 }
 </style>

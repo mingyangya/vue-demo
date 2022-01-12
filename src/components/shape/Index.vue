@@ -1,5 +1,5 @@
 <template>
-  <TrapezoidGroup :list="list">
+  <TrapezoidGroup :list="list" class="shape-group-wrap">
     <template #shape1>
       1
     </template>
@@ -18,13 +18,13 @@ export default {
       list: [{
         width: 48,
         quadrant: 2,
-        color: 'red'
+        color: '#422A1C'
       },
       {
         width: 48,
         quadrant: 3,
         offset: 48,
-        color: 'blue'
+        color: '#D6A965'
       }]
     }
   },
@@ -35,25 +35,18 @@ export default {
 </script>
 
 <style scoped lang="scss">
-
-.shape-group {
-  display: flex;
-  // width: 750px;
+.shape-group-wrap {
   height: 86px;
-  flex-wrap: nowrap;
-}
+  text-align: center;
+  color: #fff;
 
-.shape-item {
-  flex-shrink: 0;
-}
+  ::v-deep .shape-item-1 {
+    width: 511px;
+  }
 
-.shape-item-1 {
-  width: 511px;
-}
-
-.shape-item-2 {
-  width: 287px;
-  margin-left: -48px;
+  ::v-deep .shape-item-2 {
+    width: 287px;
+  }
 }
 
 </style>
