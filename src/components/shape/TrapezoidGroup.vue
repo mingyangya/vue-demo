@@ -1,10 +1,21 @@
 <template>
-  <div class="shape-trapezoid" :style="style">
-    <slot/>
+  <div class="shape-group">
+    <Trapezoid v-for="(item, i) in list"
+      :key="i"
+      class="shape-item shape-item-1"
+      :color="item.color"
+      :width="item.width"
+      :quadrant="item.quadrant"
+      :style="item.offset ? {'margin-left': `-${item.offset}px`} : {}"
+      >
+      {{item.offset}}
+      <slot/>
+    </Trapezoid>
   </div>
 </template>
 
 <script>
+import Trapezoid from './Trapezoid'
 export default {
   data () {
     return {
@@ -12,6 +23,7 @@ export default {
     }
   },
   props: {
+    list: Array,
     width: {
       type: [Number],
       default: 30
@@ -33,9 +45,11 @@ export default {
       })
     } 
   },
+  components: {
+    Trapezoid
+  },
   mounted () {
     this.init()
-    console.log(this)
   },
   methods: {
     init () {
