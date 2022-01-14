@@ -35,7 +35,6 @@ export default {
   },
   mounted () {
     this.init()
-    console.log(this)
   },
   methods: {
     init () {
@@ -65,19 +64,24 @@ export default {
           break;
       }
 
-      console.log('---', deg)
+      // console.log('---', deg)
       // deg = quadrant > 1 ? quadrant * 90 - deg : deg
 
-      console.log('+++', deg)
+      // console.log('+++', deg)
 
       this.setStyle(deg, gradientLineLength)
     },
 
     setStyle (deg, width) {
-      // this.$set(this.style, 'background-image', `-webkit-linear-gradient( ${deg}deg, ${this.color} ${width}px, transparent ${width}px)`)
-      // this.$set(this.style, 'background-image', `-moz-linear-gradient( ${deg}deg, ${this.color} ${width}px, transparent ${width}px)`)
-      // this.$set(this.style, 'background-image', `-o-linear-gradient( ${deg}deg, ${this.color} ${width}px, transparent ${width}px)`)
-      this.$set(this.style, 'background-image', `linear-gradient( ${deg}deg, ${this.color} ${width}px, transparent ${width}px)`)
+      
+      const { w, h } = this.getSize()
+      const c = width / (width + h * Math.sin(deg))
+      const precent = `${(width / c * 100)}%`
+      console.log(width, w, c, width / c, precent)
+      // this.$set(this.style, 'background-image', `linear-gradient( ${deg}deg, ${this.color} ${precent}, transparent ${precent})`)
+      // this.$set(this.style, 'background-image', `linear-gradient( ${deg}deg, ${this.color} ${width}px, transparent ${width}px)`)
+      this.$set(this.style, 'background', `linear-gradient( ${deg}deg, ${this.color} ${precent}, transparent ${precent})`)
+
     },
 
     getSize () {
@@ -102,11 +106,10 @@ export default {
       const height = this.height || h
       const width = this.width
 
-      console.log({height, width}, height / width, Math.tan(height / width), Math.atan(height / width))
       const rad = Math.atan(height / width)
       const result = this.radToDeg(rad)
 
-      console.log('deg:', result)
+      // console.log('deg:', result)
 
       return result
     },
