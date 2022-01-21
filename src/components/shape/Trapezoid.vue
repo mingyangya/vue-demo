@@ -27,11 +27,11 @@ export default {
     }
   },
   watch: {
-    quadrant (newVal) {
-      this.$nextTick(()=> {
-        this.initStyle()
-      })
-    } 
+    // quadrant (newVal) {
+    //   this.$nextTick(()=> {
+    //     this.initStyle()
+    //   })
+    // } 
   },
   mounted () {
     this.init()
@@ -48,21 +48,39 @@ export default {
 
       let deg = this.getDeg()
   
-      switch (quadrant) {
-        case 1:
-        default:
-          deg = deg
-          break;
-        case 2: 
-          deg = 180 - deg
-          break;
-        case 3: 
-          deg = 360 - deg
-          break;
-        case 4: 
-          deg = -180 + deg 
-          break;
-      }
+      // switch (quadrant) {
+      //   case 1:
+      //   default:
+      //     deg = deg
+      //     break;
+      //   case 2: 
+      //     deg = 180 - deg
+      //     break;
+      //   case 3: 
+      //     deg = 360 - deg
+      //     break;
+      //   case 4: 
+      //     deg = -180 + deg 
+      //     break;
+      // }
+
+      // switch (quadrant) {
+      //   case 1:
+      //   default:
+      //     deg = deg
+      //     break;
+      //   case 2: 
+      //     deg = 180 - deg
+      //     break;
+      //   case 3: 
+      //     deg = 360 - deg
+      //     break;
+      //   case 4: 
+      //     deg = -180 + deg 
+      //     break;
+      // }
+
+      deg = 180 - deg
 
       // console.log('---', deg)
       // deg = quadrant > 1 ? quadrant * 90 - deg : deg
@@ -77,10 +95,10 @@ export default {
       const { w, h } = this.getSize()
       const c = width / (width + h * Math.sin(deg))
       const precent = `${(width / c * 100)}%`
-      console.log(width, w, c, width / c, precent)
+      console.log(width, w, c, width / c, precent, deg)
       // this.$set(this.style, 'background-image', `linear-gradient( ${deg}deg, ${this.color} ${precent}, transparent ${precent})`)
-      // this.$set(this.style, 'background-image', `linear-gradient( ${deg}deg, ${this.color} ${width}px, transparent ${width}px)`)
-      this.$set(this.style, 'background', `linear-gradient( ${deg}deg, ${this.color} ${precent}, transparent ${precent})`)
+      this.$set(this.style, 'background-image', `linear-gradient( ${deg}deg, ${this.color} ${width}px, transparent ${width}px)`)
+      // this.$set(this.style, 'background', `linear-gradient( ${deg}deg, ${this.color} ${precent}, transparent ${precent})`)
 
     },
 
@@ -109,7 +127,7 @@ export default {
       const rad = Math.atan(height / width)
       const result = this.radToDeg(rad)
 
-      // console.log('deg:', result)
+      console.log('deg:', result, this.quadrant)
 
       return result
     },

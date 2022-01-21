@@ -23,7 +23,7 @@ import TrapezoidGroup from '../shape/TrapezoidGroup'
 export default {
   data () {
     return {
-      list: [{
+      list1: [{
         width: 48,
         quadrant: 2,
         color: '#422A1C'
@@ -33,6 +33,11 @@ export default {
         quadrant: 3,
         offset: 48,
         color: '#D6A965'
+      }],
+      list: [{
+        width: 48,
+        quadrant: 2,
+        color: '#422A1C'
       }]
     }
   },
