@@ -40,7 +40,7 @@ export default {
   watch: {
     quadrant (newVal) {
       this.$nextTick(()=> {
-        this.initStyle()
+        // this.initStyle()
       })
     } 
   },
@@ -48,7 +48,7 @@ export default {
     Trapezoid
   },
   mounted () {
-    this.init()
+    // this.init()
   },
   methods: {
     init () {
@@ -81,6 +81,7 @@ export default {
     },
 
     setStyle (deg, width) {
+
       this.$set(this.style, 'background-image', `linear-gradient( ${deg}deg, ${this.color} 0, ${this.color} ${width}px, transparent ${width}px)`)
     },
 
