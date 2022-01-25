@@ -23,6 +23,9 @@ export default {
       }, {
         name: 'animation',
         path: '/animation'
+      }, {
+        name: '弹幕',
+        path: '/barrage'
       }]
     }
   }

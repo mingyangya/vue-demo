@@ -29,7 +29,7 @@ module.exports = {
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
-    port: 8888,
+    port: 9999,
     overlay: {
       warnings: false,
       errors: true
