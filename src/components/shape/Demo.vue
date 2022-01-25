@@ -23,32 +23,27 @@ import TrapezoidGroup from '../shape/TrapezoidGroup'
 export default {
   data () {
     return {
-      // list1: [{
-      //   width: 48,
-      //   quadrant: 2,
-      //   color: '#422A1C'
-      // },
-      // {
-      //   width: 48,
-      //   quadrant: 3,
-      //   offset: 48,
-      //   color: '#D6A965'
-      // }],
       list: [{
-        width: 48,
-        quadrant: 1,
+        boxWidth: '100%',
+        boxHeight: '100%',
+        width: 285,
+        direction: 'top-right',
+        color: '#422A1C'
+      }, {
+        boxWidth: '100%',
+        boxHeight: '100%',
+        width: 90,
+        direction: 'bottom-right',
+        color: '#422A1C'
+      }, {
+        boxWidth: '100%',
+        boxHeight: '100%',
+        width: 100,
+        direction: 'top-left',
         color: '#422A1C'
       }, {
         width: 48,
-        quadrant: 2,
-        color: '#422A1C'
-      }, {
-        width: 48,
-        quadrant: 3,
-        color: '#422A1C'
-      }, {
-        width: 48,
-        quadrant: 4,
+        direction: 'top-left',
         color: '#422A1C'
       }]
     }
@@ -73,7 +68,7 @@ export default {
     .shape-item-1{
       width: 559px;
     }
-    
+
     .shape-item-3 {
       width: 100px
     }

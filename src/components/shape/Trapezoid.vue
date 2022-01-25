@@ -5,33 +5,40 @@
 </template>
 
 <script>
+// @see https://www.zhangxinxu.com/wordpress/2013/09/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3css3-gradient%E6%96%9C%E5%90%91%E7%BA%BF%E6%80%A7%E6%B8%90%E5%8F%98/
 export default {
   data () {
     return {
+      smoothing: 0.1, // 平滑过渡
       style: {}
     }
   },
   props: {
-    width: {
-      type: [Number],
-      default: 30
-    },
+     // 盒子尺寸
+    boxWidth: [String, Number],
+    boxHeight: [String, Number],
+    // 空白区域 高度
+    width: [Number],
+    // 空白区域 高度
+    height: [Number],
+    // 阴影区域颜色
     color: {
       type: String,
-      default: ''
+      default: '#422A1C'
     },
-    // 象限
+    // 空白区域方向
+    direction: {
+      type: String,
+      default: '',
+      validator: function (value) {
+        // 这个值必须匹配下列字符串中的一个
+        return ['', 'top-right', 'top-left', 'bottom-left', 'bottom-right'].includes(value)
+      }
+    },
     quadrant: {
       type: Number,
       default: 1
     }
-  },
-  watch: {
-    // quadrant (newVal) {
-    //   this.$nextTick(()=> {
-    //     this.initStyle()
-    //   })
-    // } 
   },
   mounted () {
     this.init()
@@ -39,51 +46,51 @@ export default {
   methods: {
     init () {
       this.$nextTick(()=> {
-        this.initStyle()
+        this.initStyle(this.direction)
       })
     },
 
-    initStyle (quadrant = this.quadrant) {
-      const gradientLineLength = this.getGradientLineLength()
+    initStyle (direction = '') {
+      if (!direction) {
+        // 无渐变
+        this.$set(this.style, 'background', `${this.color}`)
+      } else {
+        const gradientLineLength = this.getGradientLineLength()
 
-      let deg = this.getDeg()
-  
-      switch (quadrant) {
-        case 1:
-        default:
-          deg = deg
-          break;
-        case 2: 
-          deg = 180 - deg
-          break;
-        case 3: 
-          deg = 360 - deg
-          break;
-        case 4: 
-          deg = -180 + deg 
-          break;
+        let deg = this.getDeg()
+    
+        switch (direction) {
+          case 'top-right':
+          default:
+            deg = deg
+            break;
+          case 'bottom-right': 
+            deg = 180 - deg
+            break;
+          case 'bottom-left': 
+            deg = 360 - deg
+            break;
+          case 'top-left': 
+            deg = -180 + deg 
+            break;
+        }
+
+        this.setStyle(deg, gradientLineLength)
       }
-
-      // deg = 180 - deg
-
-      console.log('---', deg, quadrant)
-      // deg = quadrant > 1 ? quadrant * 90 - deg : deg
-
-      // console.log('+++', deg)
-
-      this.setStyle(deg, gradientLineLength)
     },
 
     setStyle (deg, width) {
-      
-      const { w, h } = this.getSize()
+      const { h } = this.getSize()
       const c = (width + h * Math.abs(Math.cos(this.degToRad(this.getDeg()))))
-      const precent = `${(width / c * 100)}%`
-      console.log({ width, w, c, deg: this.getDeg(), precent })
-      // this.$set(this.style, 'background-image', `linear-gradient( ${deg}deg, ${this.color} ${precent}, transparent ${precent})`)
-      // this.$set(this.style, 'background-image', `linear-gradient( ${deg}deg, ${this.color} ${width}px, transparent ${width}px)`)
-      this.$set(this.style, 'background', `linear-gradient( ${deg}deg, ${this.color} ${precent}, transparent ${precent})`)
+      const precent = width / c * 100
+      this.$set(this.style, 'background', `linear-gradient( ${deg}deg, rgba(66, 42, 28, 1) ${precent}%, rgba(66, 42, 28, 0) ${this.smoothing ? precent + this.smoothing : precent}%)`)
 
+    },
+
+    changeColor () {
+      let color = 'rgba(66, 42, 28, 1)'
+
+      return color
     },
 
     getSize () {
@@ -133,5 +140,8 @@ export default {
 .shape-trapezoid {
   width: 100%;
   height: 100%;
+  -webkit-transform-style: preserve-3d;
+  -webkit-perspective: 1000;
+  // transform: rotate(.1deg) translateZ(0);
 }
 </style>
