@@ -51,13 +51,15 @@ export default {
     },
 
     initStyle (direction = '') {
+      let deg = 0
       if (!direction) {
         // 无渐变
         this.$set(this.style, 'background', `${this.color}`)
+        this.$emit('set-style', { color })
       } else {
         const gradientLineLength = this.getGradientLineLength()
 
-        let deg = this.getDeg()
+        deg = this.getDeg()
     
         switch (direction) {
           case 'top-right':
@@ -74,7 +76,6 @@ export default {
             deg = -180 + deg 
             break;
         }
-
         this.setStyle(deg, gradientLineLength)
       }
     },
@@ -83,8 +84,9 @@ export default {
       const { h } = this.getSize()
       const c = (width + h * Math.abs(Math.cos(this.degToRad(this.getDeg()))))
       const precent = width / c * 100
-      this.$set(this.style, 'background', `linear-gradient( ${deg}deg, rgba(66, 42, 28, 1) ${precent}%, rgba(66, 42, 28, 0) ${this.smoothing ? precent + this.smoothing : precent}%)`)
+      this.$set(this.style, 'background', `linear-gradient( ${deg}deg, ${this.color} ${precent}%, transparent ${this.smoothing ? precent + this.smoothing : precent}%)`)
 
+      this.$emit('set-style', { color: this.co9lor, width, precent, smoothing: this.smoothing })
     },
 
     changeColor () {
@@ -118,8 +120,6 @@ export default {
       const rad = Math.atan(height / width)
       const result = this.radToDeg(rad)
 
-      // console.log('deg:', result, this.quadrant)
-
       return result
     },
 
@@ -138,10 +138,7 @@ export default {
 
 <style scoped lang="scss">
 .shape-trapezoid {
-  width: 100%;
-  height: 100%;
-  -webkit-transform-style: preserve-3d;
-  -webkit-perspective: 1000;
-  // transform: rotate(.1deg) translateZ(0);
+  // width: 100%;
+  // height: 100%;
 }
 </style>

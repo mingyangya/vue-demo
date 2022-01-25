@@ -19,8 +19,6 @@ export default {
   },
   components: {
     Trapezoid
-  },
-  mounted () {
   }
 }
 </script>
