@@ -7,6 +7,7 @@ import Animation from '../views/vue-animation/Index.vue'
 import Barrage from '../views/barrage/index.vue'
 import Shape from '@/views/shape/Index.vue'
 import ShapeDemo from '../components/shape/Demo.vue'
+import BingDemo from '../views/BingDemo.vue'
 
 Vue.use(VueRouter)
 
@@ -53,6 +54,11 @@ const routes = [
     path: '/shape/demo',
     name: 'ShpaeDemo',
     component: ShapeDemo,
+  },
+  {
+    path: '/bing',
+    name: 'bingDemo',
+    component: BingDemo,
   }
 ]
 
