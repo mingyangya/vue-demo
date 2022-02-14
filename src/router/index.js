@@ -8,6 +8,7 @@ import Barrage from '../views/barrage/index.vue'
 import Shape from '@/views/shape/Index.vue'
 import ShapeDemo from '../components/shape/Demo.vue'
 import BingDemo from '../views/BingDemo.vue'
+import Notice from '../views/Notice.vue'
 
 Vue.use(VueRouter)
 
@@ -59,6 +60,11 @@ const routes = [
     path: '/bing',
     name: 'bingDemo',
     component: BingDemo,
+  },
+  {
+    path: '/notice',
+    name: 'Notice',
+    component: Notice,
   }
 ]
 
