@@ -3,8 +3,8 @@
     <TrapezoidGroup :list="list" class="shape-group-wrap">
       <template #shape1>
         <div class="text-1">
-          <div class="sale"><span class="num">{{499}}</span> 元 / 年</div>
-          <div class="market"><span class="num">{{699}}</span> 元 / 年</div>
+          <div class="sale"><span class="num">{{ 499 }}</span> 元 / 年</div>
+          <div class="market"><span class="num">{{ 699 }}</span> 元 / 年</div>
         </div>
       </template>
       <template #shape2>
@@ -20,7 +20,7 @@
 import TrapezoidGroup from '@/components/shape/TrapezoidGroup'
 
 export default {
-  data () {
+  data() {
     return {
       list: [{
         boxWidth: '100%',
@@ -63,61 +63,57 @@ export default {
   color: #fff;
   font-family: PingFang SC;
 
-  /deep/ {
-    .shape-item-1{
-      width: 559px;
-    }
+  @include deep('.shape-item-1') {
+    width: 559px;
+  }
 
-    .shape-item-3 {
-      width: 100px
-    }
+  @include deep('.shape-item-2') {
+    width: 239px;
+  }
 
-    .shape-item-2 {
-      width: 239px;
-      // display: none;
-    }
+  @include deep('.shape-item-3') {
+    width: 100px
+  }
 
-    .text-1 {
-      box-sizing: border-box;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      height: 100%;
-      padding-right: 30px;
-    }
+  .text-1 {
+    box-sizing: border-box;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 100%;
+    padding-right: 30px;
+  }
 
-    .sale,
-    .market {
-      display: flex;
-      align-items: center;
-    }
+  .sale,
+  .market {
+    display: flex;
+    align-items: center;
+  }
 
-    .sale {
-      margin-right: 7px;
-      font-size: 14px;
-      font-weight: 400;
-      color: #FAE2B4;
+  .sale {
+    margin-right: 7px;
+    font-size: 14px;
+    font-weight: 400;
+    color: #FAE2B4;
 
-      >.num {
-        margin-right: 8px;
-        font-size: 30px;
-        font-weight: 500;
-        color: #FAE2B4;
-      }
-    }
-
-    .market {
-      font-size: 14px;
+    >.num {
+      margin-right: 8px;
+      font-size: 30px;
       font-weight: 500;
-      color: rgba(207, 169, 148, .7);
-      text-decoration: line-through;
+      color: #FAE2B4;
     }
   }
 
+  .market {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(207, 169, 148, .7);
+    text-decoration: line-through;
+  }
 }
+
 
 img {
   display: block;
 }
-
 </style>

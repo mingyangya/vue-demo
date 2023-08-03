@@ -3,12 +3,12 @@
     <div class="play-gif">
       <div class="play-gif-item" v-for="(item, i) in list" :key="i"></div> 
     </div>
-    <BackWxtime />
+    <!-- <BackWxtime /> -->
   </div>
 </template>
 
 <script>
-import { BackWxtime } from '@geekbang/geek.elements'
+// import { BackWxtime } from '@geekbang/geek.elements'
 export default {
   data () {
     return {
@@ -30,7 +30,7 @@ export default {
     }
   },
   components: {
-    BackWxtime
+    // BackWxtime
   },
   computed: {
     VideoPoint () {

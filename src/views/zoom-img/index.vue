@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import Layout from '@/components/layout/index'
+import Layout from '@/layout/index'
 // import ZoomImg from '@/components/common/zoom-img/index'
 import ZoomImg from '@/components/common/zoom-img/Img.vue'
 // import Mock from 'mockjs'

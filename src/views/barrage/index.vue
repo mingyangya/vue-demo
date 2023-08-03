@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import Layout from '@/components/layout/index'
+import Layout from '@/layout/index'
 // import Barrage from '@/components/barrage/index'
 import Barrage from '@/components/barrage/barrage'
 

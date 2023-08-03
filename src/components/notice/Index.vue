@@ -226,13 +226,14 @@ $gray: #888;
     font-size: 14px;
     color: #999;
   }
-  & /deep/ .gkui-dialog-container {
+
+  @include deep('.gkui-dialog-container') {
     box-sizing: border-box;
     padding: 40px 0 30px;
     border-radius: 5px;
   }
 
-  & /deep/ .gkui-dialog-footer {
+   @include deep('.gkui-dialog-footer') {
     padding: 0;
   }
 
@@ -284,12 +285,12 @@ $gray: #888;
   }
 
   .notice-dialog {
-    & /deep/ .gkui-dialog-container {
+    @include deep('.gkui-dialog-container') {
       padding: 51px 0 45px;
       border-radius: 8px;
     }
 
-    & /deep/ .gkui-dialog-close-wrap {
+    @include deep('.gkui-dialog-close-wrap') {
       top: 5px; right: 5px;
     }
 

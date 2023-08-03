@@ -6,11 +6,14 @@
 </template>
 
 <script>
-import Header from '@/components/layout/header'
+import Header from '@/layout/header'
 export default {
   data () {
     return {
     }
+  },
+  props: {
+    showHeader: true
   },
   components: {
     Header

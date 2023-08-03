@@ -63,7 +63,7 @@ export default {
   font-family: PingFang SC;
 }
 
-/deep/ .shape-item-1 {
+@include deep('.shape-item-1') {
   width: (280 / 375) * 100%;
 }
 
@@ -108,7 +108,7 @@ export default {
 }
 
 
-/deep/ .shape-item-2 {
+@include deep('.shape-item-2') {
   width: 0;
   flex: 1;
   margin-left: -24px;
