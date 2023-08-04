@@ -2,8 +2,8 @@
   <div class="custom-barrage">
     <div class="barrage-box">
       <div class="barrage-box-item" ref="ele" :style="itemStyle" v-for="(item, i) in barrageList" :key="i">
-        <slot/>
-        {{item.content}}
+        <slot />
+        {{ item.content }}
       </div>
     </div>
   </div>
@@ -49,19 +49,17 @@ export default {
     this.clear()
   },
   methods: {
-    
-    render () {
 
+    render () {
     },
 
     normalizeData (data) {
       return Object.keys(data)
-      .filter((key) => data[key] !== null && data[key] !== undefined && data[key] !== '')
-      .reduce((acc, key) => ({ ...acc, [key]: data[key] }), {})
+        .filter((key) => data[key] !== null && data[key] !== undefined && data[key] !== '')
+        .reduce((acc, key) => ({ ...acc, [key]: data[key] }), {})
     },
 
     getSize () {
-      const wrapSize = {}
     },
 
     clear () {

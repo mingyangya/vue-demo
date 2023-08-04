@@ -22,7 +22,7 @@
 import { routerMenuList } from '@/config/router.conf'
 export default {
   name: 'Home',
-  data() {
+  data () {
     return {
       // menuList: [{
       //   name: '查看大图',
@@ -42,7 +42,7 @@ export default {
     }
   },
   methods: {
-    jump(item) {
+    jump (item) {
       this.$router.push(item.path)
     }
   }

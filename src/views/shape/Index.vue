@@ -20,7 +20,7 @@
 import TrapezoidGroup from '@/components/shape/TrapezoidGroup'
 
 export default {
-  data() {
+  data () {
     return {
       list: [{
         boxWidth: '100%',

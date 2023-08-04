@@ -8,6 +8,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "web": "npx http-server dist -p 9000",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
