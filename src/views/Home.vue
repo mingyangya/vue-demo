@@ -24,19 +24,7 @@ export default {
   name: 'Home',
   data () {
     return {
-      // menuList: [{
-      //   name: '查看大图',
-      //   path: '/zoom-img'
-      // }, {
-      //   name: '测试',
-      //   path: '/test'
-      // }, {
-      //   name: 'animation',
-      //   path: '/animation'
-      // }, {
-      //   name: '弹幕',
-      //   path: '/barrage'
-      // }],
+      num: 6, // 24 / 4 每行显示的卡片数目
       menuList: routerMenuList,
       currentDate: new Date()
     }
@@ -55,6 +43,7 @@ h1 {
 
 .el-col {
   margin-top: 20px;
+  // @apply mb-7;
 
   &:nth-child(-n+3) {
     margin-top: 0
