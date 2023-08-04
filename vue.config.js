@@ -4,8 +4,10 @@ function resolve (dir) {
   return path.join(__dirname, './', dir)
 }
 
+const isProduct = process.env.NODE_ENV === 'production'
+
 module.exports = {
-  publicPath: '/',
+  publicPath: isProduct ? '/vue-demo/' : '/',
   chainWebpack: config => {
     config.resolve.alias
       .set('@', resolve('src'))
