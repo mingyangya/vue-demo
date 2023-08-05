@@ -61,12 +61,21 @@ const config = [
   {
     name: 'bing',
     path: '/bing',
+    nickname: 'bing',
     componentPath: routerPath('BingDemo'),
     mata: {},
   },
   {
     name: 'notice',
     path: '/notice',
+    nickname: 'notice',
+    componentPath: routerPath('Notice'),
+    mata: {},
+  },
+  {
+    name: 'notice',
+    path: '/notice',
+    nickname: 'notice',
     componentPath: routerPath('Notice'),
     mata: {},
   }

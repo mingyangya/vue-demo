@@ -6,9 +6,11 @@
 
 <style>
 @import url(./assets/css/typo.css);
+@import url(./assets/css/tailwind.scss);
 body,html {
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   /* background: #3d3c3c; */
 }
 
@@ -18,5 +20,6 @@ body,html {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  height: 100%;
 }
 </style>
