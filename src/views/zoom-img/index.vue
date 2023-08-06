@@ -1,21 +1,20 @@
 <template>
-<Layout>
+<Layout :content="content">
   <div class="zoom-img">
-    <img :src="src" alt="" class="image" @click="preview(src)">
+    <img :src="src" alt="" class="image mx-auto" @click="preview(src)">
     <ZoomImg ref='imgModel' :img="src" @open="open" @close="close" title="点击查看大图"/>
-    <!-- <ZoomImg ref='zoomImgEle' class="image" :src="src" @open="open" @close="close" title="点击查看大图"/> -->
   </div>
 </Layout>
 </template>
 
 <script>
 import Layout from '@/layout/index'
-// import ZoomImg from '@/components/common/zoom-img/index'
 import ZoomImg from '@/components/common/zoom-img/Img.vue'
-// import Mock from 'mockjs'
+
 export default {
   data () {
     return  {
+      content: '图片预览',
       src: 'https://avatars.githubusercontent.com/u/20461557?v=4',
       imgUrl: ''
     }
@@ -28,15 +27,12 @@ export default {
     preview (url) {
       this.imgUrl = url
       this.$refs.imgModel.open()
-      // this.$nextTick(() => {
-      //   this.$refs.imgModel.open()
-      // })
     },
     open (e) {
-      console.log('图片地址', e)
+      // console.log('预览图片', e)
     },
     close () {
-      console.log('关闭')
+      // console.log('关闭')
     }
   }
 }

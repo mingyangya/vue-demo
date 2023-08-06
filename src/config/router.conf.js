@@ -15,6 +15,8 @@ const config = [
     nickname: '查看大图',
     path: '/zoom-img',
     componentPath: routerPath('zoom-img/index'),
+    cover: require('@/assets/img/cover/zoom-img.gif'),
+    hoverCover: require('@/assets/img/cover/zoom-img.gif'),
     mata: {},
   },
   {
@@ -32,53 +34,28 @@ const config = [
     mata: {},
   },
   {
-    name: 'back',
-    path: '/back',
-    nickname: '返回',
-    componentPath: routerPath('Back'),
-    mata: {},
-  },
-  {
     name: 'testVideo',
     path: '/test/video',
-    nickname: '测试视频',
+    nickname: '音视频--打点功能',
     componentPath: routerPath('TestVideo'),
     mata: {},
   },
   {
-    name: 'shape',
-    path: '/shape',
-    nickname: '形状',
-    componentPath: routerPath('TestVideo'),
-    mata: {},
-  },
-  // {
-  //   name: 'shapeDemo',
-  //   path: '/shape/demo',
-  //   componentPath: 'components/shape/Demo',
-  //   mata: {},
-  // },
-  {
-    name: 'bing',
-    path: '/bing',
-    nickname: 'bing',
-    componentPath: routerPath('BingDemo'),
+    name: 'player',
+    path: '/player',
+    nickname: '音视频打点-player',
+    componentPath: routerPath('player/index'),
     mata: {},
   },
   {
     name: 'notice',
     path: '/notice',
-    nickname: 'notice',
-    componentPath: routerPath('Notice'),
+    nickname: '无缝滚动效果',
+    cover: require('@/assets/img/cover/notice.gif'),
+    hoverCover: require('@/assets/img/cover/notice.gif'),
+    componentPath: routerPath('notice/index'),
     mata: {},
   },
-  {
-    name: 'notice',
-    path: '/notice',
-    nickname: 'notice',
-    componentPath: routerPath('Notice'),
-    mata: {},
-  }
 ]
 
 export const routerConf = config.map(item => {

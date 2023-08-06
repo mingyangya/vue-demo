@@ -19,7 +19,7 @@ module.exports = {
   // add your custom rules here
   'rules': {
     'space-in-parens': 1, // 函数参数之间的空格
-    'space-before-function-paren': 1, // 函数参数前的空格
+    // 'space-before-function-paren': 1, // 函数参数前的空格
     'comma-spacing': 1, // 逗号后有一个空格
     'object-curly-spacing': 0,
     'no-unneeded-ternary': 0,

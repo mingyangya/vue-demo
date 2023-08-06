@@ -1,6 +1,6 @@
 <template>
   <div class="layout">
-    <Header/>
+    <Header :content="content" />
     <slot></slot>
   </div>
 </template>
@@ -8,12 +8,13 @@
 <script>
 import Header from '@/layout/header'
 export default {
-  data () {
+  data() {
     return {
     }
   },
   props: {
-    showHeader: true
+    showHeader: true,
+    content: String
   },
   components: {
     Header

@@ -1,16 +1,21 @@
 <template>
-  <transition name="slide-up">
-    <div class="com-notice" :class="isMobile ? 'app-layout-type-mobile' : 'app-layout-type-pc'" v-if="noticeShow && content && content.length > 0">
-      <div ref="noticeEle" class="content-container" :style="noticeStyle">
-        <div ref="noticeContentEle" class="content" :style="style">
-          <div class="content-item" v-for="(item, i) in content" :key="i" :style="itemStyle">
-            {{item}}
+  <div>
+    <transition name="slide-up" v-if="noticeShow">
+      <div class="com-notice" :class="isMobile ? 'app-layout-type-mobile' : 'app-layout-type-pc'"
+        v-if="noticeShow && content && content.length > 0">
+        <div ref="noticeEle" class="content-container" :style="noticeStyle">
+          <div ref="noticeContentEle" class="content" :style="style">
+            <div class="content-item" v-for="(item, i) in content" :key="i" :style="itemStyle">
+              {{ item }}
+            </div>
           </div>
         </div>
+        <span class="close-btn" @click="close"></span>
       </div>
-      <span class="close-btn" @click="close"></span>
-    </div>
-  </transition>
+    </transition>
+
+    <el-button v-else @click="noticeShow = true">打开</el-button>
+  </div>
 </template>
 
 <script>
@@ -35,7 +40,7 @@ export default {
       validator: value => ['x', 'y'].includes(value)
     }
   },
-  data () {
+  data() {
     return {
       noticeShow: true,           // 通知栏显示（需要同时有内容）
       hasScrollAnimation: false,  // 通知栏文字是否滚动
@@ -45,21 +50,21 @@ export default {
     }
   },
   computed: {
-    noticeSize () {
+    noticeSize() {
       const ele = this.$refs.noticeEle
       return {
         width: ele.clientWidth,
         height: ele.clientHeight
       }
     },
-    noticeContentSize () {
+    noticeContentSize() {
       const ele = this.$refs.noticeContentEle
       return {
         width: ele.clientWidth,
         height: ele.clientHeight
       }
     },
-    noticeStyle () {
+    noticeStyle() {
       if (!this.hasScrollAnimation) return
       let style = {}
       if (this.direction === 'x') {
@@ -73,56 +78,56 @@ export default {
       }
       return style
     },
-    style () {
+    style() {
       return {
         flexDirection: this.direction === 'x' ? 'row' : 'column',
         transform: this.direction === 'x' ? `translateX(${this.contentTranslate}px)` : `translateY(${this.contentTranslate}px)`
       }
     },
-    itemStyle () {
-      return this.direction === 'x' ? (this.oneScreen ? { "min-width": '100%' } : { "width": 'max-content'}) : (this.oneScreen ? { "min-height": '100%' } : { "height": 'max-content'})
+    itemStyle() {
+      return this.direction === 'x' ? (this.oneScreen ? { "min-width": '100%' } : { "width": 'max-content' }) : (this.oneScreen ? { "min-height": '100%' } : { "height": 'max-content' })
     },
-    len () {
+    len() {
       return this.oneScreen ? this.content.length - 1 : 1
     }
   },
-  mounted () {
+  mounted() {
     window.addEventListener('resize', this.initAnimation)
   },
-  beforeDestroy () {
+  beforeDestroy() {
     window.removeEventListener('resize', this.initAnimation)
   },
   watch: {
     content: {
       immediate: true,
-      handler () {
+      handler() {
         this.getNotice()
       }
     }
   },
   methods: {
     // 获取通知栏信息
-    getNotice () {
+    getNotice() {
       this.$nextTick(() => {
         this.initAnimation()
       })
     },
 
-    initAnimation () {
+    initAnimation() {
       if (this.noticeShow && this.content && this.content.length) {
         this.tickStop()
 
         if (this.direction === 'x') {
-          const { width } =  this.noticeSize
-          const { width: contentWidth } =  this.noticeContentSize
+          const { width } = this.noticeSize
+          const { width: contentWidth } = this.noticeContentSize
 
           // 通知栏内容长度超过父容器时，滚动展示内容
           if (contentWidth * this.len > width) {
             this.tickStart()
           }
         } else {
-          const { height } =  this.noticeSize
-          const { height: contentHeight } =  this.noticeContentSize
+          const { height } = this.noticeSize
+          const { height: contentHeight } = this.noticeContentSize
           // 通知栏内容高度超过父容器时，滚动展示内容
           if (contentHeight * this.len > height) {
             this.tickStart()
@@ -131,7 +136,7 @@ export default {
       }
     },
 
-    tickStart () {
+    tickStart() {
       this.hasScrollAnimation = true
       // 初始位置设定在右侧或者顶部
       this.contentTranslate = this.direction === 'x' ? this.noticeContentSize.width : this.noticeContentSize.height
@@ -139,7 +144,7 @@ export default {
       this.tick()
     },
 
-    tickStop () {
+    tickStop() {
       if (this.hasScrollAnimation) {
         this.hasScrollAnimation = false
         this.contentTranslate = 0
@@ -148,7 +153,7 @@ export default {
       }
     },
 
-    tick () {
+    tick() {
       this.contentTranslate -= this.distance
 
       if (this.direction === 'x') {
@@ -168,7 +173,7 @@ export default {
       }
     },
 
-    close () {
+    close() {
       this.noticeShow = false
       this.tickStop()
     }
@@ -185,7 +190,8 @@ $gray: #888;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%; height: 45px;
+  width: 100%;
+  height: 45px;
   background: #FFF8F1;
   font-size: 16px;
   font-weight: 400;
@@ -233,7 +239,7 @@ $gray: #888;
     border-radius: 5px;
   }
 
-   @include deep('.gkui-dialog-footer') {
+  @include deep('.gkui-dialog-footer') {
     padding: 0;
   }
 
@@ -252,16 +258,22 @@ $gray: #888;
 }
 
 .close-btn {
-  position: absolute; z-index: 10; left: 50%; top: 12px;
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  top: 12px;
   margin-left: 550px;
-  width: 20px; height: 20px;
+  width: 20px;
+  height: 20px;
   cursor: pointer;
   transform: rotate(45deg);
 
   &:before,
   &:after {
     content: '';
-    position: absolute; left: 50%; top: 50%;
+    position: absolute;
+    left: 50%;
+    top: 50%;
     width: 15px;
     border-top: 1px solid $orange;
     transform: translate(-50%, -50%);
@@ -291,11 +303,13 @@ $gray: #888;
     }
 
     @include deep('.gkui-dialog-close-wrap') {
-      top: 5px; right: 5px;
+      top: 5px;
+      right: 5px;
     }
 
     & .iconfont {
-      font-size: 11px; font-weight: 300;
+      font-size: 11px;
+      font-weight: 300;
     }
 
   }
@@ -305,8 +319,11 @@ $gray: #888;
   }
 
   .close-btn {
-    left: auto; right: 6px; top: 8px;
-    width: 15px; height: 15px;
+    left: auto;
+    right: 6px;
+    top: 8px;
+    width: 15px;
+    height: 15px;
     background: #d0d0d0;
     border-radius: 50%;
 
@@ -318,9 +335,11 @@ $gray: #888;
   }
 }
 
-.slide-up-active, .slide-up-leave-active {
+.slide-up-active,
+.slide-up-leave-active {
   transition: all 0.5s ease;
 }
+
 .slide-up-enter {
   height: 50px;
   opacity: 1;
@@ -329,6 +348,4 @@ $gray: #888;
 .slide-up-leave-to {
   height: 0;
   opacity: 0;
-}
-
-</style>
+}</style>

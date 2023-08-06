@@ -13,7 +13,7 @@
               <div class="bottom">
                 <el-button type="primary" class="button" @click="jump(item)">进入</el-button>
               </div>
-            </div>
+          </div>
           </el-card>
         </el-col>
       </el-row>
@@ -108,6 +108,8 @@ h1 {
     width: 100%;
     margin: 0 auto;
     background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
   }
 }
 

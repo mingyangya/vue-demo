@@ -425,7 +425,7 @@ export default {
       this.boundary.left = -width + offset.x
     },
     isInApp: function () {
-      return !!navigator.userAgent.match(/org\.geekbang\.GeekTime/i)
+      return false
     },
     checkMobile () {
       const ua = navigator.userAgent.toLowerCase()
