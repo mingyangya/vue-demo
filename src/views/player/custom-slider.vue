@@ -27,7 +27,7 @@ export default {
     duration: Number,
     marks: Array,
   },
-  data() {
+  data () {
     return {
       inputValue: 0,
       // markList: [{desc: '', time: 0, start: 0, end: 0}],
@@ -39,7 +39,7 @@ export default {
     }
   },
   watch: {
-    value(newV) {
+    value (newV) {
       this.inputValue = newV
     },
 
@@ -50,35 +50,32 @@ export default {
       deep: true,
     },
 
-    duration(newV) {
+    duration (newV) {
       this.formatData(this.marks, newV)
     }
   },
 
-  mounted() {
+  mounted () {
     this.$refs.refContent.addEventListener('mousemove', this.mousemove)
     this.$refs.refContent.addEventListener('mouseleave', this.mouseleave)
-
-    let position = this.$refs.refContent.getBoundingClientRect();
-
-    // 鼠标移动区域据页面左侧的距离
-    this.startLeft = position.left
   },
 
-  beforeDestroy() {
+  beforeDestroy () {
     this.$refs.refContent.removeEventListener('mousemove', this.mousemove)
     this.$refs.refContent.removeEventListener('mouseleave', this.mouseleave)
   },
 
   methods: {
-    mouseleave() {
+    mouseleave () {
       this.tips = ''
       this.showTip = false
     },
 
     // 获取滑动位置位于那个mark区间
-    getMarkIndexByDistance(distance) {
-      const x = distance - this.startLeft // 滑动位置相对于滑动区域（refContent）x 坐标
+    getMarkIndexByDistance (distance) {
+
+
+      const x = distance - this.$refs.refContent.getBoundingClientRect().left // 滑动位置相对于滑动区域（refContent）x 坐标
       const width = this.$refs.refContent.clientWidth
 
       // 相对百分比值
@@ -89,11 +86,11 @@ export default {
     },
 
     // 是否在区间内
-    isInWithin(val, start, end) {
+    isInWithin (val, start, end) {
       return (val >= start) && (val <= end)
     },
 
-    mousemove(event) {
+    mousemove (event) {
       const index = this.getMarkIndexByDistance(event.clientX)
 
       if (index !== -1) {
@@ -106,16 +103,16 @@ export default {
       }
     },
 
-    input(val) {
+    input (val) {
       // console.log('滑块的值发生变化', val)
       this.$emit('change', val)
     },
 
-    formatData(list, duration) {
+    formatData (list, duration) {
       this.markList = (list || []).map(item => {
         // 百分比位置，相对于（refContent）
-        const start = Math.round((parseFloat(item.start * 100) / duration).toFixed())
-        const end = Math.round((parseFloat(item.end * 100) / duration).toFixed())
+        const start = Math.round(+(parseFloat(item.start * 100) / duration).toFixed())
+        const end = Math.round((+parseFloat(item.end * 100) / duration).toFixed())
 
         return {
           ...item,
@@ -126,7 +123,7 @@ export default {
       })
     },
 
-    clikMark(mark) {
+    clikMark (mark) {
       this.inputValue = mark
     }
   },
@@ -142,7 +139,6 @@ export default {
     pointer-events: all;
     width: 100%;
     height: 100%;
-    // background: no-repeat url('~@/assets/images/meeting/audio-bg.png') top center/100% 22px;
   }
 
   .custom-slider-bg {
@@ -151,42 +147,25 @@ export default {
     left: 0;
     width: 100%;
     height: 22px;
-    // background-image: url(../../assets/images/meeting-summary/slider-bg.png);
     background-size: cover;
   }
 
-  // .progress {
-  // background-color: #355678;
-
-  ::v-deep .el-slider__marks {
+  @include deep('.el-slider__marks') {
     display: none;
   }
 
-  ::v-deep .el-slider__runway {
+  @include deep('.el-slider__runway') {
     background-color: #9CC6FF;
   }
 
-  ::v-deep .el-slider__bar {
+  @include deep('.el-slider__bar') {
     background-color: #3A8DFF;
   }
 
-  ::v-deep .el-slider__button {
-    // background-color: #3A8DFF;
-    // border-color: #9CC6FF;
-
-    // background-color: #3A8DFF;
-    // // border-color: #3A8DFF;
+  @include deep('.el-slider__button') {
     background-color: #3A8DFF;
-    border-color: #3A8DFF;
-    width: 2px !important;
-    height: 15px !important;
-    border: none !important;
-    border-radius: 0 !important;
-    margin-top: -4px;
+
   }
-
-  // }
-
 
   .mark {
     position: absolute;
@@ -239,31 +218,4 @@ export default {
 
   }
 }
-</style>
-
-<style lang="scss">
-// .mark-tooltip {
-//   &.el-tooltip__popper {
-//     width: 400px;
-//     background: #3A8DFF;
-//     border: none;
-
-//     &.is-light {
-//       .popper__arrow {
-//         border-top-color: #3A8DFF;
-//       }
-//     }
-
-//   }
-
-//   .markdown-body {
-//     background-color: transparent;
-//     font-size: 14px;
-//     color: #fff;
-//   }
-
-//   .popper__arrow {
-//     border-top-color: #3A8DFF;
-//   }
-// }
 </style>

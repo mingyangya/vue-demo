@@ -1,22 +1,17 @@
 <template>
   <div class="meeting-player">
     <div class="meeting-player-container w-full">
-      <div class="player-area">
+      <div :class="['player-area', type +'-area']">
         <components :src="playerSrc" :is="type" ref="refPlayer" @timeupdate="timeupdate" @loadedmetadata="loadedmetadata">
         </components>
       </div>
 
       <div class="ctrl-area flex items-center">
         <div class="btn-group">
-          <el-button type="prev" class="prev" @click="prev">
-            <i class="el-icon-d-arrow-left"></i>
-          </el-button>
-          <el-button type="ctrl" class="play ml-2" @click="handleClick">
-            <i :class="paused ? 'el-icon-video-play' : 'el-icon-video-pause'"></i>
-          </el-button>
-          <el-button type="next" class="next ml-2" @click="next">
-            <i class="el-icon-d-arrow-right"></i>
-          </el-button>
+          <i class="ctrl-btn prev el-icon-arrow-left" @click="prev"></i>
+          <i :class="['ctrl-btn play ml-2', paused ? 'el-icon-video-play' : 'el-icon-video-pause']"
+            @click="handleClick"></i>
+          <i class="el-icon-arrow-right ctrl-btn  next ml-2" @click="next"></i>
         </div>
 
         <div class="progress flex-1 ml-4">
@@ -31,7 +26,7 @@
 import customSlider from './custom-slider.vue'
 
 export default {
-  data() {
+  data () {
     return {
       // playerSrc: 'https://raw.githubusercontent.com/djlxiaoshi/Audio/master/mp3/%E6%A8%8A%E5%87%A1%20-%20%E4%B8%8D%E8%A6%81%E5%B0%B1%E8%BF%99%E6%A0%B7%E7%A6%BB%E5%BC%80%E6%88%91.mp3',
       playerSrc: '',
@@ -51,7 +46,10 @@ export default {
     marks: Array,
     type: {
       type: String,
-      default: 'audio'
+      default: 'audio',
+      validator: function (value) {
+        return ['audio', 'video'].includes(value.toLowerCase())
+      }
     }
   },
   watch: {
@@ -64,19 +62,19 @@ export default {
     },
   },
   methods: {
-    handleClick() {
+    handleClick () {
       this.paused ? this.play() : this.pause()
     },
-    play() {
+    play () {
       this.paused = false
       this.$refs.refPlayer.play()
     },
-    pause() {
+    pause () {
       this.paused = true
       this.$refs.refPlayer.pause()
     },
 
-    loadedmetadata(event) {
+    loadedmetadata (event) {
       const { duration, currentTime, paused } = event.target
 
       this.paused = paused
@@ -86,7 +84,7 @@ export default {
       console.log('loadedmetadata')
     },
 
-    canplay() {
+    canplay () {
       const { duration } = event.target
 
       console.log('canplay')
@@ -94,7 +92,7 @@ export default {
       this.duration = duration
     },
 
-    timeupdate(event) {
+    timeupdate (event) {
       const { paused, currentTime } = event.target
 
       this.currentTime = currentTime
@@ -107,31 +105,31 @@ export default {
     },
 
 
-    prev() {
+    prev () {
       const currentTime = this.currentTime - this.step <= 0 ? 0.01 : this.currentTime - this.step
 
       this.setCurrentTime(currentTime)
     },
 
-    next() {
+    next () {
       const currentTime = this.currentTime + this.step >= this.duration ? this.duration : this.currentTime + this.step
 
       this.setCurrentTime(currentTime)
     },
 
-    setCurrentTime(time) {
+    setCurrentTime (time) {
       this.currentTime = time
       this.$refs.refPlayer.currentTime = time
     },
 
-    setSliderValue() {
+    setSliderValue () {
       // 获取进度百分比
       const value = Math.round(this.currentTime * 100 / this.duration)
 
       this.sliderValue = value
     },
 
-    sliderChange(value) {
+    sliderChange (value) {
       const currentTime = Math.round((parseFloat(this.duration) * value / 100).toFixed(2))
 
       this.setCurrentTime(currentTime)
@@ -141,9 +139,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
-
 $width: 500px;
 $height: $width * 3 / 4;
+
 .meeting-player {
   width: $width;
   margin: 0 auto;
@@ -151,8 +149,8 @@ $height: $width * 3 / 4;
 
 .meeting-player-container {
   background-color: #000;
-  // @apply p-2;
 }
+
 
 .btn-group {
   @apply flex;
@@ -191,6 +189,17 @@ $height: $width * 3 / 4;
   }
 }
 
+.ctrl-area {
+  background-color: #e5e2e2;
+  @apply px-3;
+}
+
+.ctrl-btn {
+  color: #3A8DFF;
+  font-size: 24px;
+  cursor: pointer;
+}
+
 .player-area {
   width: 100%;
   height: auto;
@@ -200,11 +209,13 @@ $height: $width * 3 / 4;
     width: 100%;
     height: $height;
   }
+
+  audio {
+    min-height: 30px;
+  }
 }
 
 .progress {
-  // background-color: #355678;
-
   @apply px-2;
 
   @include deep('.el-slider__marks') {

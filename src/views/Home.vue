@@ -1,6 +1,6 @@
 <template>
   <div class="home py-2 flex flex-col">
-    <h1 class="mb-5">DEMO 合集</h1>
+    <h1 class="py-5">DEMO 合集</h1>
     <div class=" flex-1 h-0 px-10 py-2 overflow-y-auto overflow-x-hidden ">
       <el-row :gutter="20">
         <el-col :span="num" v-for="(item, index) in menuList" :key="index">
@@ -52,7 +52,7 @@ export default {
       const nowTime = Date.now()
       const oneDay = 1000 * 3600 * 24
 
-      if (nowTime - yiyan.time > oneDay) {
+      if (nowTime - yiyan.time > oneDay) { 
         getYiYan().then(res => {
           this.yiyanInfo = res
           this.$storage.add('yiyan', res.text)
@@ -107,7 +107,7 @@ h1 {
   .image {
     width: 100%;
     margin: 0 auto;
-    background-size: cover;
+    background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
   }
