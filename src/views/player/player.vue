@@ -2,7 +2,8 @@
   <div class="meeting-player">
     <div class="meeting-player-container w-full">
       <div :class="['player-area', type + '-area']">
-        <components :src="playerSrc" :is="type" ref="refPlayer" @timeupdate="timeupdate" @loadedmetadata="loadedmetadata">
+        <components :src="playerSrc" :is="type" ref="refPlayer" :poster="poster" @timeupdate="timeupdate"
+          @canplay="canplay" @loadedmetadata="loadedmetadata">
         </components>
       </div>
 
@@ -40,10 +41,11 @@ import VideoPoint from './video-point.vue'
 import axios from '@/utils/request'
 
 export default {
-  data () {
+  data() {
     return {
       // playerSrc: 'https://raw.githubusercontent.com/djlxiaoshi/Audio/master/mp3/%E6%A8%8A%E5%87%A1%20-%20%E4%B8%8D%E8%A6%81%E5%B0%B1%E8%BF%99%E6%A0%B7%E7%A6%BB%E5%BC%80%E6%88%91.mp3',
       playerSrc: '',
+      poster: '',
       duration: 0,
       currentTime: 0,
       sliderValue: 0, // 滑块的值 【0-100】
@@ -129,7 +131,7 @@ export default {
   },
   filters: {
     // s（秒）转化为hh（时）:mm（分）:ss（秒）
-    formatSecond (second) {
+    formatSecond(second) {
       const add0 = num => (num < 10 ? '0' + num : '' + num)
       const hour = Math.floor(second / 3600)
       const min = Math.floor((second - hour * 3600) / 60)
@@ -145,11 +147,11 @@ export default {
       immediate: true
     },
   },
-  beforeDestroy () {
-    URL.revokeObjectURL()
+  beforeDestroy() {
+    URL?.revokeObjectURL && URL?.revokeObjectURL()
   },
   methods: {
-    getBlobData (url) {
+    getBlobData(url) {
       return new Promise((resolve, reject) => {
         axios({
           method: "get",
@@ -165,62 +167,68 @@ export default {
       })
     },
 
-    handleSrc (src) {
+    handleSrc(src) {
       console.log('src', src)
-      this.getBlobData(src).then((res) => {
-        this.playerSrc = URL.createObjectURL(res)
-      })
+      // this.getBlobData(src).then((res) => {
+      //   this.playerSrc = URL.createObjectURL(res)
+      // }).catch(() => {
+      //   this.playerSrc = src
+      // })
+
+      this.playerSrc = src
     },
 
-    videoPointClick (time) {
-      // this.seek(time)
-
+    videoPointClick(time) {
       this.setCurrentTime(time)
-
     },
 
-    clickPrev () {
+    clickPrev() {
       console.log('外click prev')
     },
 
-    clickNext () {
+    clickNext() {
       console.log('外click next')
     },
-    clickItem () {
+    clickItem() {
       console.log('外click item')
     },
 
-    handleClick () {
+    handleClick() {
       this.paused ? this.play() : this.pause()
     },
-    play () {
+
+    play() {
       this.paused = false
       this.$refs.refPlayer.play()
     },
-    pause () {
+
+    pause() {
       this.paused = true
       this.$refs.refPlayer.pause()
     },
 
-    loadedmetadata (event) {
-      const { duration, currentTime, paused } = event.target
+    loadedmetadata(event) {
+      const { duration, paused, currentTime } = event.target
 
       this.paused = paused
       this.duration = duration
       this.currentTime = currentTime
 
       console.log('loadedmetadata')
+
+      // this.getPosterImg()
+
+      // this.setCurrentTime(1)
+      // this.getPosterImg()
     },
 
-    canplay () {
-      const { duration } = event.target
-
-      console.log('canplay')
-
-      this.duration = duration
+    canplay() {
+      if (!this.initialPlay) {
+        this.initialPlay = true
+      }
     },
 
-    timeupdate (event) {
+    timeupdate(event) {
       const { paused, currentTime } = event.target
 
       this.currentTime = currentTime
@@ -233,31 +241,53 @@ export default {
     },
 
 
-    prev () {
+    prev() {
       const currentTime = this.currentTime - this.step <= 0 ? 0.01 : this.currentTime - this.step
 
       this.setCurrentTime(currentTime)
     },
 
-    next () {
+    next() {
       const currentTime = this.currentTime + this.step >= this.duration ? this.duration : this.currentTime + this.step
 
       this.setCurrentTime(currentTime)
     },
 
-    setCurrentTime (time) {
+    setCurrentTime(time) {
       this.currentTime = time
       this.$refs.refPlayer.currentTime = time
     },
 
-    setSliderValue () {
+    getPosterImg() {
+      const { videoWidth: width, videoHeight: height } = this.$refs.refPlayer
+
+      console.dir(this.$refs.refPlayer)
+
+      this.$refs.refPlayer.setAttribute('crossOrigin', 'anonymous'); 
+
+
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      let ctx = canvas.getContext('2d')
+
+      ctx.drawImage(this.$refs.refPlayer, 0, 0, canvas.width, canvas.height)
+
+      console.log(canvas.toDataURL('image/png'))
+
+      this.poster = canvas.toDataURL('image/png')
+
+      console.log(this.poster)
+    },
+
+    setSliderValue() {
       // 获取进度百分比
       const value = Math.round(this.currentTime * 100 / this.duration)
 
       this.sliderValue = value
     },
 
-    sliderChange (value) {
+    sliderChange(value) {
       const currentTime = Math.round((parseFloat(this.duration) * value / 100).toFixed(2))
 
       this.setCurrentTime(currentTime)

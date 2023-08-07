@@ -116,9 +116,10 @@ export default {
         // 组件不渲染，不处理视频进度
         if (this.showVideoPoint) {
           // 处理激活项的位置
-          this.$nextTick(() => {
-            this.timeupdate(this.currentT)
-          })
+          // this.$nextTick(() => {
+          //   this.timeupdate(this.currentT)
+          // })
+          this.timeupdate(this.currentT)
         }
       },
       immediate: true
