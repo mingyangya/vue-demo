@@ -5,6 +5,8 @@ import store from './store'
 import { Storage } from '@/utils/storage'
 import ElementUI from 'element-ui'
 
+import '@/directive/zoom-img'
+
 // const VConsole = require('vconsole')
 // const vConsole = new VConsole()
 import 'element-ui/lib/theme-chalk/index.css'

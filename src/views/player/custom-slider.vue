@@ -132,7 +132,7 @@ export default {
 
 <style scoped lang="scss">
 .custom-slider {
-  $sliderInnerH: 20px; // 进度条高度
+  $sliderInnerH: 6px; // 进度条高度
 
   .custom-slider-container {
     position: relative;
@@ -155,7 +155,11 @@ export default {
   }
 
   @include deep('.el-slider__runway') {
-    background-color: #9CC6FF;
+    background-color: rgba(255, 255, 255, 0.4);
+    padding: 0;
+    margin: 0;
+    height: $sliderInnerH;
+    border-radius: 0;
   }
 
   @include deep('.el-slider__bar') {
@@ -163,8 +167,10 @@ export default {
   }
 
   @include deep('.el-slider__button') {
+    width: $sliderInnerH + 6;
+    height: $sliderInnerH + 6;
     background-color: #3A8DFF;
-
+    border-color: #3A8DFF;
   }
 
   .mark {
@@ -184,9 +190,9 @@ export default {
   .mark-li {
     position: absolute;
     top: 0;
-    transform: translate(-3px, -50%);
-    width: 6px;
-    height: 6px;
+    transform: translate($sliderInnerH / -2, -50%);
+    width: $sliderInnerH;
+    height: $sliderInnerH;
     border-radius: 50%;
     background-color: #fff;
     cursor: pointer;

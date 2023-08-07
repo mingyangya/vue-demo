@@ -5,7 +5,9 @@
       <el-row :gutter="20">
         <el-col :span="num" v-for="(item, index) in menuList" :key="index">
           <el-card shadow="always">
-            <div class="flex-1 h-0 image" :style="{ 'background-image': `url(${item.cover})` }">
+            <!-- <div class="flex-1 h-0 image" v-zoom-img="item.cover" :style="{ 'background-image': `url(${item.cover})` }" >
+            </div> -->
+            <div class="flex-1 h-0 image" :style="{ 'background-image': `url(${item.cover})` }" >
             </div>
 
             <div style="padding: 14px;" class="card-content">
@@ -99,6 +101,7 @@ h1 {
 
 .el-card {
   height: 300px;
+  overflow: unset;
 
   @include deep('.el-card__body') {
     @apply flex flex-col h-full;
