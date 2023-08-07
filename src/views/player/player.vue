@@ -18,9 +18,10 @@
               @click="handleClick"></i>
             <i class="el-icon-arrow-right ctrl-btn  next ml-2" @click="next"></i>
           </div>
-          <div class="time flex items-center ml-2"><span>{{ currentTime | formatSecond }}</span><span class="duration">
-              /{{
-                duration | formatSecond }}</span></div>
+          <div class="time flex items-center ml-2">
+            <span>{{ currentTime | formatSecond }}</span>
+            <span class="duration">/{{ duration | formatSecond }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -35,8 +36,8 @@
 
 <script>
 import customSlider from './custom-slider.vue'
-
 import VideoPoint from './video-point.vue'
+import axios from '@/utils/request'
 
 export default {
   data () {
@@ -52,19 +53,35 @@ export default {
       pluginList: [1],
       list: [{
         seconds: 1,
+        time: 1,
+        start: 1,
+        end: 10,
         desc: '君不见黄河之水天上来，奔流到海不复回'
       },
       {
         seconds: 20,
+        time: 20,
+        start: 20,
+        end: 30,
         desc: '君不见高堂明镜悲白发，朝如青丝暮成雪。'
       }, {
+
         seconds: 30,
+        time: 30,
+        start: 30,
+        end: 40,
         desc: '人生得意须尽欢，莫使金樽空对月。'
       }, {
         seconds: 49,
+        time: 49,
+        start: 49,
+        end: 55,
         desc: '天生我材必有用，千金散尽还复来。'
       }, {
         seconds: 59,
+        time: 59,
+        start: 59,
+        end: 62,
         desc: '烹羊宰牛且为乐，会须一饮三百杯。'
       }, {
         seconds: 66,
@@ -87,12 +104,6 @@ export default {
       }, {
         seconds: 120,
         desc: '五花马、千金裘，呼儿将出换美酒，与尔同销万古愁。'
-      }, {
-        seconds: 130,
-        desc: '13'
-      }, {
-        seconds: 140,
-        desc: '14'
       }],
       customEvent: {
         clickPrev: this.clickPrev,
@@ -129,13 +140,37 @@ export default {
   watch: {
     src: {
       handler: function (newSrc) {
-        console.log(newSrc, 'newSrc')
-        this.playerSrc = newSrc
+        newSrc && this.handleSrc(newSrc)
       },
       immediate: true
     },
   },
+  beforeDestroy () {
+    URL.revokeObjectURL()
+  },
   methods: {
+    getBlobData (url) {
+      return new Promise((resolve, reject) => {
+        axios({
+          method: "get",
+          responseType: "blob",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          withCredentials: false,
+          url
+        }).then(({ data }) => {
+          resolve(data)
+        }).catch(err => reject(err))
+      })
+    },
+
+    handleSrc (src) {
+      console.log('src', src)
+      this.getBlobData(src).then((res) => {
+        this.playerSrc = URL.createObjectURL(res)
+      })
+    },
 
     videoPointClick (time) {
       // this.seek(time)
@@ -233,7 +268,7 @@ export default {
 
 <style scoped lang="scss">
 $width: 500px;
-$height: $width * 3 / 4;
+$height: $width * 9 / 16;
 
 .meeting-player {
   width: $width;
