@@ -44,6 +44,15 @@ const config = [
     componentPath: routerPath('notice/index'),
     mata: {},
   },
+  {
+    name: 'table',
+    path: '/table',
+    nickname: 'table导出excel',
+    cover: require('@/assets/img/cover/notice.gif'),
+    hoverCover: require('@/assets/img/cover/notice.gif'),
+    componentPath: routerPath('table/index'),
+    mata: {},
+  },
 ]
 
 export const routerConf = config.map(item => {

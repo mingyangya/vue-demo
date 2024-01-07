@@ -1,6 +1,6 @@
 const path = require('path')
 
-function resolve (dir) {
+function resolve(dir) {
   return path.join(__dirname, './', dir)
 }
 
@@ -17,6 +17,12 @@ module.exports = {
     config.plugins.delete('preload')
     config.plugins.delete('prefetch')
 
+  },
+
+  configureWebpack: {
+    externals: {
+      './cptable': 'var cptable'
+    }
   },
 
   pluginOptions: {
