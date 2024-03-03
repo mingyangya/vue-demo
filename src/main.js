@@ -5,6 +5,9 @@ import store from './store'
 import { Storage } from '@/utils/storage'
 import ElementUI from 'element-ui'
 
+// import echartsGL from 'echarts-gl' // 引入echarts
+// Vue.prototype.$echartsGL = echartsGL // 引入组件（将echarts注册为全局）
+
 import '@/directive/zoom-img'
 
 // const VConsole = require('vconsole')

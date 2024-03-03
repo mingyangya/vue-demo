@@ -53,6 +53,29 @@ const config = [
     componentPath: routerPath('table/index'),
     mata: {},
   },
+  {
+    name: 'map-3d',
+    path: '/map-3d',
+    nickname: '3dmap',
+    // cover: require('@/assets/img/cover/notice.gif'),
+    // hoverCover: require('@/assets/img/cover/notice.gif'),
+    componentPath: routerPath('map-3d/index'),
+    mata: {},
+  },
+  {
+    name: 'map-3d1',
+    path: '/map-3d1',
+    nickname: '3dmap1',
+    componentPath: routerPath('map-3d/map'),
+    mata: {},
+  },
+  {
+    name: 'test',
+    path: '/test',
+    nickname: 'test',
+    componentPath: routerPath('test-demo/index'),
+    mata: {},
+  },
 ]
 
 export const routerConf = config.map(item => {
